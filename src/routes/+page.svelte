@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Avatar } from "@nostr-dev-kit/ndk-svelte-components";
+	import { Avatar, Name } from "@nostr-dev-kit/ndk-svelte-components";
 	import { ndk } from '$lib/ndk';
 	import type { ExtendedBaseType, NDKEventStore } from '@nostr-dev-kit/ndk-svelte';
 	import {
@@ -112,7 +112,7 @@
 		<!-- <img class="w-8 h-8 rounded-full" src="https://zenquotes.io/img/marcus-aurelius.jpg" alt="profile pic" /> -->
 		<div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700 my-2 overflow-hidden mr-2">
 			<div class="flex items-center space-x-2 rtl:space-x-reverse">
-			   <span class="text-sm font-semibold text-gray-900 dark:text-white">{e.author.profile?.displayName || e.author.profile?.name}</span>
+				<span class="text-sm font-semibold text-gray-900 dark:text-white"><Name ndk={$ndk} user={e.author}></Name></span>
 			   <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{new Date(e.created_at*1000).toLocaleString()}</span>
 			</div>
 			<p class="text-sm font-normal py-2.5 text-gray-900 dark:text-white"><RenderNoteContent inputString={e.content} /></p>
