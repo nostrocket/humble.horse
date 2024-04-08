@@ -13,7 +13,7 @@
 		userRelays
 	} from '@/stores/session';
 	import { Avatar, RelayList } from '@nostr-dev-kit/ndk-svelte-components';
-	import { NDKEvent, type NDKUser, type NostrEvent } from '@nostr-dev-kit/ndk';
+	import { NDKEvent, type NDKFilter, type NDKUser, type NostrEvent } from '@nostr-dev-kit/ndk';
 	import { Button } from '@/components/ui/button';
 	import { goto } from '$app/navigation';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -26,6 +26,8 @@
 	import Moon from 'svelte-radix/Moon.svelte';
 	import { toggleMode } from 'mode-watcher';
 	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
+	import { onMount } from 'svelte';
+	import type { NDKEventStore } from '@nostr-dev-kit/ndk-svelte';
 
 	let connected = false;
 	let sessionStarted = false;
@@ -68,6 +70,8 @@
 		});
 		sessionStarted = true;
 	}
+
+    
 
 	// async function newEntry() {
 	// 	const title = prompt('Name of the concept (e.g. second world war)');
@@ -116,6 +120,32 @@
 	}
 
 	let showAdd = false;
+
+    // let firehose: NDKEventStore<NDKEvent> | undefined;
+    // let filters: NDKFilter[] = [{ kinds: [1 as number]}];
+    // let mounted = false;
+
+    // $: {
+    //     if (connected && !firehose) {
+    //         firehose = $ndk2.storeSubscribe(filters, { subId: 'firehose' });
+    //     }
+    // }
+        
+
+    // onMount(() => {
+	// 	const filters: NDKFilter[] = [{ kinds: [1 as number]}];
+
+	// 	// query = $page.url.searchParams.get('q') || '';
+	// 	// newQuery = query;
+
+	// 	// if (query) {
+	// 	// 	filters[0].search = query;
+	// 	// 	filters.push({ kinds: [30818 as number], "#d": [query] });
+	// 	// }
+
+	// 	firehose = $ndk.storeSubscribe(filters, { subId: 'firehose' });
+	// 	mounted = true;
+	// })
 </script>
 
 <ModeWatcher />
@@ -257,6 +287,23 @@
 		<div
 			class="bg-white dark:bg-zinc-900 row-span-12 col-span-11 overflow-x-hidden overflow-y-scroll no-scrollbar"
 		>
+			{#if !connected}
+				Connecting...
+			{:else if $ndk.signer && !sessionStarted}
+				Preparing session...
+			{:else}
+				<div class="mx-auto {$maxBodyWidth}"></div>
+			{/if}
+
+            <!-- {#if firehose && $firehose}
+            {#each $firehose as event} <div class=" gap-2">{event.content}</div> {/each}
+            {/if} -->
+            <!-- {#if userFollows && $userFollows}
+            {$userFollows.size}
+            {#each $userFollows as pubkey}
+                {pubkey}
+            {/each}
+            {/if} -->
 			<slot />
 		</div>
 	</div>
@@ -265,32 +312,14 @@
 	</div>
 </div>
 
-<div
-	class="grid grid-cols-12 grid-rows-12 w-full h-full dark:bg-gradient-to-r from-transparent to-blue-950"
->
-	<div class="">
-		<Button variant="outline" size="icon" class="-scale-x-100 hover:skew-y-12"
-			><ArrowTurnUpSolid /></Button
-		>
-	</div>
 
-	<Button on:click={toggleMode} variant="outline" size="icon">
-		<Sun
-			class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-		/>
-		<Moon
-			class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-		/>
-		<span class="sr-only">Toggle theme</span>
-	</Button>
 
-	<div class="basis-11/12"></div>
 
-	<div class="flex p-2 h-64 bg-sky-400 dark:bg-sky-950">
-		<Input placeholder="Start typing..." type="text" class=" bg-sky-50 dark:bg-black" />
-	</div>
-</div>
 
+
+
+
+<!-- 
 <div class="flex flex-row justify-between gap-6 items-center mb-8 {$maxBodyWidth} mx-auto">
 	<h2 class="text-orange-600">
 		<a href="/">Humble Horse</a>
@@ -440,4 +469,4 @@
 	Preparing session...
 {:else}
 	<div class="mx-auto {$maxBodyWidth}"></div>
-{/if}
+{/if} -->
