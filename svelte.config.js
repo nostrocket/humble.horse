@@ -12,7 +12,7 @@ const config = {
 			fallback: "404.html",
 		  }),
 		  prerender: {
-			crawl: false,
+			crawl: true,
 		  },
 		  paths: {
 			base: "",
@@ -27,6 +27,12 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: adapter()
 	},
+	vitePlugin: {
+		inspector: {
+		  holdMode: true,
+		  toggleKeyCombo: "meta-shift",
+		},
+	  },
 };
 
 export default config;
