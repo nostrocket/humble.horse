@@ -5,7 +5,7 @@ import { writable } from 'svelte/store';
 
 export const ndk = writable(
 	new NDKSvelte({
-		cacheAdapter: new NDKCacheAdapterDexie({ dbName: 'wiki' }),
+		//cacheAdapter: new NDKCacheAdapterDexie({ dbName: 'wiki' }), //disabled becasue it uses way too much memory and slows everything down
 		explicitRelayUrls: [
 			'wss://purplepag.es',
 			'wss://relay.nostr.band',
@@ -20,6 +20,6 @@ export const ndk = writable(
 			'wss://relay.primal.net',
 			'wss://pyramid.fiatjaf.com'
 		],
-		enableOutboxModel: true
+		enableOutboxModel: false
 	})
 );

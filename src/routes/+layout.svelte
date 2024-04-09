@@ -1,8 +1,9 @@
 <script lang="ts">
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { ndk } from '$lib/ndk';
-	import Login from './Login.svelte';
-	import '../app.css';
-	import { ModeWatcher } from 'mode-watcher';
+	import { Button } from '@/components/ui/button';
+	import { Input } from '@/components/ui/input';
+	import { maxBodyWidth } from '@/stores/layout';
 	import {
 		currentUser,
 		followRelays,
@@ -12,22 +13,16 @@
 		userRelayEvent,
 		userRelays
 	} from '@/stores/session';
-	import { Avatar, RelayList } from '@nostr-dev-kit/ndk-svelte-components';
-	import { NDKEvent, type NDKFilter, type NDKUser, type NostrEvent } from '@nostr-dev-kit/ndk';
-	import { Button } from '@/components/ui/button';
-	import { goto } from '$app/navigation';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import { Input } from '@/components/ui/input';
-	import { Circle, Gear, Home, Plus, QuestionMark, Trash } from 'radix-icons-svelte';
-	import { Globe } from 'svelte-radix';
 	import { minimumScore, wot } from '@/stores/wot';
-	import { maxBodyWidth } from '@/stores/layout';
-	import Sun from 'svelte-radix/Sun.svelte';
-	import Moon from 'svelte-radix/Moon.svelte';
-	import { toggleMode } from 'mode-watcher';
+	import { NDKEvent, type NDKUser, type NostrEvent } from '@nostr-dev-kit/ndk';
+	import { Avatar, RelayList } from '@nostr-dev-kit/ndk-svelte-components';
+	import { ModeWatcher, toggleMode } from 'mode-watcher';
+	import { Gear, Home, QuestionMark, Trash } from 'radix-icons-svelte';
 	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
-	import { onMount } from 'svelte';
-	import type { NDKEventStore } from '@nostr-dev-kit/ndk-svelte';
+	import Moon from 'svelte-radix/Moon.svelte';
+	import Sun from 'svelte-radix/Sun.svelte';
+	import '../app.css';
+	import Login from './Login.svelte';
 
 	let connected = false;
 	let sessionStarted = false;
@@ -60,31 +55,24 @@
 		connected = true;
 	});
 
-	$: if (connected && !sessionStarted && $ndk.signer) {
-		$ndk.signer.user().then((u) => {
-			$currentUser = u;
-			user = u;
-			prepareSession($ndk, user).then(() => {
+	$: if (connected && (!sessionStarted || $currentUser != user)) {
+		if ($ndk.signer) {
+			$ndk.signer.user().then((u) => {
+				$currentUser = u;
+				user = u;
+			});
+		} else {
+			$currentUser = $ndk.getUser({
+				pubkey: 'd91191e30e00444b942c0e82cad470b32af171764c2275bee0bd99377efd4075'
+			});
+		}
+		if ($currentUser) {
+			prepareSession($ndk, $currentUser).then(() => {
 				sessionStarted = true;
 			});
-		});
-		sessionStarted = true;
+			sessionStarted = true;
+		}
 	}
-
-    
-
-	// async function newEntry() {
-	// 	const title = prompt('Name of the concept (e.g. second world war)');
-	// 	if (!title) return;
-	// 	// normalize title, it should be all lower case, spaces should be replaced with dash
-	// 	const dTag = title?.toLowerCase().trim().replace(/ /g, '-')!;
-	// 	const event = new NDKEvent($ndk, {
-	// 		kind: 30818,
-	// 		tags: [ [ "d", dTag ], ]
-	// 	} as NostrEvent);
-	// 	await event.publish()
-	// 	goto(`/a/${event.encode()}/edit`);
-	// }
 
 	let relay = '';
 	let newRelay = '';
@@ -120,32 +108,6 @@
 	}
 
 	let showAdd = false;
-
-    // let firehose: NDKEventStore<NDKEvent> | undefined;
-    // let filters: NDKFilter[] = [{ kinds: [1 as number]}];
-    // let mounted = false;
-
-    // $: {
-    //     if (connected && !firehose) {
-    //         firehose = $ndk2.storeSubscribe(filters, { subId: 'firehose' });
-    //     }
-    // }
-        
-
-    // onMount(() => {
-	// 	const filters: NDKFilter[] = [{ kinds: [1 as number]}];
-
-	// 	// query = $page.url.searchParams.get('q') || '';
-	// 	// newQuery = query;
-
-	// 	// if (query) {
-	// 	// 	filters[0].search = query;
-	// 	// 	filters.push({ kinds: [30818 as number], "#d": [query] });
-	// 	// }
-
-	// 	firehose = $ndk.storeSubscribe(filters, { subId: 'firehose' });
-	// 	mounted = true;
-	// })
 </script>
 
 <ModeWatcher />
@@ -295,10 +257,10 @@
 				<div class="mx-auto {$maxBodyWidth}"></div>
 			{/if}
 
-            <!-- {#if firehose && $firehose}
+			<!-- {#if firehose && $firehose}
             {#each $firehose as event} <div class=" gap-2">{event.content}</div> {/each}
             {/if} -->
-            <!-- {#if userFollows && $userFollows}
+			<!-- {#if userFollows && $userFollows}
             {$userFollows.size}
             {#each $userFollows as pubkey}
                 {pubkey}
@@ -311,13 +273,6 @@
 		<Input placeholder="Start typing..." type="text" class=" bg-sky-100 dark:bg-sky-950" />
 	</div>
 </div>
-
-
-
-
-
-
-
 
 <!-- 
 <div class="flex flex-row justify-between gap-6 items-center mb-8 {$maxBodyWidth} mx-auto">
