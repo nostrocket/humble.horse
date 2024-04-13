@@ -1,0 +1,21 @@
+<script lang="ts">
+	import { base } from '$app/paths';
+	import type { EventTreeItem } from '@/workers/firehose.types';
+
+		export let tree: EventTreeItem;
+	export let onclick: () => {};
+</script>
+
+<button
+	on:click={onclick}
+	type="button"
+	class="relative inline-flex items-center p-1 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-cyan-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+>
+	<img class=" h-10" src={`${base}/marcus.png`} />
+	<span class="sr-only">Notifications</span>
+	<div
+		class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-orange-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-yellow-200"
+	>
+		0
+	</div>
+</button>
