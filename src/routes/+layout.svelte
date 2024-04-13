@@ -1,15 +1,22 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
+	import LoginButton from '@/components/LoginButton.svelte';
 	import { Button } from '@/components/ui/button';
 	import { Input } from '@/components/ui/input';
-	import { maxBodyWidth } from '@/stores/layout';
+	import { Init } from '@/workers/firehose_master';
 	import { ModeWatcher, toggleMode } from 'mode-watcher';
 	import { Home, QuestionMark } from 'radix-icons-svelte';
+	import { onMount } from 'svelte';
 	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
 	import Moon from 'svelte-radix/Moon.svelte';
 	import Sun from 'svelte-radix/Sun.svelte';
 	import '../app.css';
-</script>
 
+	onMount(() => {
+		Init();
+	});
+</script>
 <ModeWatcher />
 
 <div
@@ -22,7 +29,7 @@
 			<Button variant="outline" size="icon" class="-scale-x-100 hover:skew-y-12"
 				><ArrowTurnUpSolid /></Button
 			>
-			<Button variant="outline" size="icon" class="-scale-x-100 hover:skew-y-12"
+			<Button on:click={()=>{goto(`${base}/`)}} variant="outline" size="icon" class="-scale-x-100 hover:skew-y-12"
 				><Home size={24} /></Button
 			>
 			<Button variant="outline" size="icon" class="hover:skew-y-12"
@@ -38,11 +45,15 @@
 				/>
 				<span class="sr-only">Toggle theme</span>
 			</Button>
+
+			<LoginButton />
+
+			<Button on:click={()=>{goto(`${base}/debug`)}}>D</Button>
+
 		</div>
 		<div
 			class="bg-white dark:bg-zinc-900 row-span-12 col-span-11 overflow-x-hidden overflow-y-scroll no-scrollbar"
 		>
-			<div class="mx-auto {$maxBodyWidth}"></div>
 			<slot />
 		</div>
 	</div>
