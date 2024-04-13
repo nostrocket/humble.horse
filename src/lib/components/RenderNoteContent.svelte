@@ -18,6 +18,10 @@
 			return `<img src="${url}" alt="Image" style="max-width: 100%; height: auto;">`;
 		});
 
+        const nostr = /nostr:\S+/g;
+
+        
+
 		return formattedInput;
 	}
 </script>

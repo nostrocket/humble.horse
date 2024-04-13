@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { ndk } from "$lib/ndk";
 	import { Button } from "@/components/ui/button";
+	import { currentPubkey } from "@/stores/user";
 	import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
 	import { Person } from "radix-icons-svelte";
 	import { onMount } from "svelte";
@@ -19,8 +19,12 @@
             const user = await signer.blockUntilReady();
 
             if (user) {
-                $ndk.signer = signer;
-                $ndk = $ndk
+                currentPubkey.update(existing=>{
+                    existing = user.pubkey
+                    return existing
+                })
+                // $ndk.signer = signer;
+                // $ndk = $ndk
                 localStorage.setItem("signed-in", "true");
             }
         } catch (e) {
@@ -30,6 +34,5 @@
 </script>
 
 <Button on:click={nip07}>
-    <Person class="w-4 h-4 sm:hidden" />
-    <span class="hidden sm:block">Sign in</span>
+    <Person class="w-4 h-4" />
 </Button>
