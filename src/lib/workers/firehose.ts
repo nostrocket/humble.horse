@@ -25,7 +25,7 @@ const _ndk = writable(
       "wss://relay.primal.net",
       // "wss://pyramid.fiatjaf.com",
     ],
-    enableOutboxModel: false,
+    enableOutboxModel: true,
   })
 );
 
@@ -39,9 +39,6 @@ const replaceableKinds = [0, 3];
 const processedIdForKind: Record<number, string> = {};
 
 let responseStore: Writable<ResponseData> | undefined; // =
-// responseStore.subscribe((response) => {
-//   postMessage(response);
-// });
 
 function init(pubkey?: string) {
   if (!responseData) {
@@ -58,15 +55,6 @@ function init(pubkey?: string) {
     rootEvents.subscribe(() => {
       updateEventMap();
     });
-
-    // let _masterFollows = writable(responseData.followLists.get(responseData.masterPubkey))
-    // let masterFollows = derived(_masterFollows, ($mfs)=>{
-    //   if ($mfs) {
-    //     return $mfs.size
-    //   } else {
-    //     return 0
-    //   }
-    // })
 
     let masterFollows = derived(responseStore, ($responseStore) =>{
         if ($responseStore.masterPubkey) {
