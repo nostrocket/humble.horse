@@ -15,7 +15,7 @@
 
 		// Replace image URLs with <img> tags
 		formattedInput = formattedInput.replace(urlRegex, (url) => {
-			return `<img src="${url}" alt="Image" style="max-width: 100%; height: auto;">`;
+			return `<img src="${url}" alt="Image" style="max-width: 98%; height: auto;" class="m-2 rounded">`;
 		});
 
         const nostr = /nostr:\S+/g;

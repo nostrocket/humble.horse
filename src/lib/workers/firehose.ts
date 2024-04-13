@@ -208,7 +208,7 @@ function iterate(m: Map<string, EventTreeItem>): Map<string, EventTreeItem> {
     if (_children) {
       for (let eventID of _children) {
         let _child_event = responseData!.events.get(eventID);
-        if (_child_event) {
+        if (_child_event && _child_event.kind == 1) {
           children.set(eventID, new EventTreeItem(_child_event));
         }
       }
