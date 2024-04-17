@@ -6,6 +6,7 @@
 	import LoginButton from './LoginButton.svelte';
 	import { Button } from './ui/button';
 	import { Input } from './ui/input';
+	import { FaucetSolid, GearSolid, ListCheckSolid, PodcastSolid, ToolboxSolid } from 'svelte-awesome-icons';
 </script>
 
 <div
@@ -23,11 +24,13 @@
 				}}
 				variant="outline"
 				size="icon"
-				class="-scale-x-100 hover:skew-y-12"><Home size={24} /></Button
+				class="-scale-x-100 hover:skew-y-12"><FaucetSolid /></Button
 			>
+			<Button size="icon" variant="outline"><ListCheckSolid /></Button>
 			<Button variant="outline" size="icon" class="hover:skew-y-12"
 				><QuestionMark size={24} /></Button
 			>
+			<Button><GearSolid /></Button>
 
 			<Button on:click={toggleMode} variant="outline" size="icon">
 				<Sun
@@ -44,9 +47,9 @@
 			<Button
 				on:click={() => {
 					goto(`${base}/debug`);
-				}}>DEV</Button
+				}}><ToolboxSolid /></Button
 			>
-
+			<Button><PodcastSolid /></Button>
 			<Button
 				on:click={() => {
 					goto(`${base}/marcus`);

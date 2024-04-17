@@ -20,6 +20,7 @@
 		"@nostr-dev-kit/ndk-cache-dexie": "^2.3.1",
 		"@nostr-dev-kit/ndk-svelte": "^2.2.12",
 		"@nostr-dev-kit/ndk-svelte-components": "^2.2.13",
+		"@snort/system": "^1.2.12",
 		"@types/markdown-it": "^13.0.7",
 		"bits-ui": "^0.18.1",
 		"clsx": "^2.1.0",

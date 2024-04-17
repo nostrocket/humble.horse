@@ -5,7 +5,7 @@
 	import '../app.css';
 
 	onMount(() => {
-		Init();
+		//Init();
 	});
 </script>
 <ModeWatcher />

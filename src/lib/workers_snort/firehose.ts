@@ -13,16 +13,6 @@ import {
 import { reducedRelays, seedRelays } from './seed_relays';
 import { tagSplits } from './firehose.utils';
 
-const __ndk = new NDKSvelte({
-	//cacheAdapter: new NDKCacheAdapterDexie({ dbName: "firehose" }),
-	explicitRelayUrls: ["wss://relay.nostrocket.org"],
-	enableOutboxModel: true
-});
-
-const _ndk = writable(__ndk);
-
-const ndk = get(_ndk);
-let sub: NDKEventStore<ExtendedBaseType<NDKEvent>> | undefined = undefined;
 
 let workerData: WorkerData | undefined; // = new ResponseData();
 let frontendData = new FrontendData();
@@ -164,6 +154,7 @@ function init(pubkey?: string) {
 	}
 }
 
+let subbed = false
 let subscribe = (pubkey?: string, pubkeys?: string[]) => {
 	if (pubkey && pubkey.length != 64) {
 		throw new Error('invalid pubkey');
@@ -187,7 +178,10 @@ let subscribe = (pubkey?: string, pubkeys?: string[]) => {
 	if (pubkey) {
 		workerData.masterPubkey = pubkey;
 	}
-	if (!sub && pubkey) {
+	if (!subbed && pubkey) {
+		subbed = true
+		
+	
 		sub = ndk.storeSubscribe(
 			{ kinds: [3], authors: [pubkey] },
 			{ subId: 'master', closeOnEose: false }

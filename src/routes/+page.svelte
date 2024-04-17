@@ -3,5 +3,5 @@
 	import { base } from "$app/paths";
 	import { onMount } from "svelte";
 
-	onMount(()=>{goto(`${base}/messages`)})
+	onMount(()=>{goto(`${base}/messageview`)})
 </script>
