@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
-	import { base } from "$app/paths";
-	import { onMount } from "svelte";
+	import { FrontendDataStore } from "@/snort_workers/main";
+	import Messages from "@/views/messages/Messages.svelte";
 
-	onMount(()=>{goto(`${base}/messageview`)})
 </script>
+
+<Messages {FrontendDataStore} />

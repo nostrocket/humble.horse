@@ -2,9 +2,8 @@
 	import ChatLayout from '@/components/ChatLayout.svelte';
 	import Coracle from '@/components/Coracle.svelte';
 	import { Button } from '@/components/ui/button';
-	import { FrontendDataStore, Init } from '@/snort_workers/main';
+	import type { FrontendData } from '@/snort_workers/types';
 	import type { NostrEvent } from 'nostr-tools';
-	import { onDestroy, onMount } from 'svelte';
 	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
 	import { derived, writable, type Writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
@@ -12,11 +11,8 @@
 
 	//take current threadparentID (or root) and create a derived store of all events. derive antoher one to pipe it through sorting/filtering store.
 	//
+export let FrontendDataStore: Writable<FrontendData>
 
-	onMount(() => {
-		Init();
-	});
-	onDestroy(() => {});
 
 	let threadParentIDChain = writable(['root']);
 
