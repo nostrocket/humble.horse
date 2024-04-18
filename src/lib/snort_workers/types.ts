@@ -1,4 +1,4 @@
-import type { Event, NostrEvent } from 'nostr-tools';
+import type { NostrEvent } from 'nostr-tools';
 
 export class Command {
 	command: 'start' | 'sub_to_pubkeys';

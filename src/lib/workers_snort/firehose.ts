@@ -1,8 +1,7 @@
-import { NDKEvent, type NDKFilter, type NostrEvent } from '@nostr-dev-kit/ndk';
-import NDKSvelte, { type ExtendedBaseType, type NDKEventStore } from '@nostr-dev-kit/ndk-svelte';
+import { NDKEvent, type NDKFilter } from '@nostr-dev-kit/ndk';
+import NDKSvelte from '@nostr-dev-kit/ndk-svelte';
 import { derived, get, writable, type Writable } from 'svelte/store';
 
-import NDKCacheAdapterDexie from '@nostr-dev-kit/ndk-cache-dexie';
 import {
 	Command,
 	EventTreeItem,
@@ -10,8 +9,8 @@ import {
 	WorkerData,
 	type RecursiveEventMap
 } from './firehose.types';
-import { reducedRelays, seedRelays } from './seed_relays';
 import { tagSplits } from './firehose.utils';
+import { seedRelays } from './seed_relays';
 
 
 let workerData: WorkerData | undefined; // = new ResponseData();
@@ -180,7 +179,7 @@ let subscribe = (pubkey?: string, pubkeys?: string[]) => {
 	}
 	if (!subbed && pubkey) {
 		subbed = true
-		
+
 	
 		sub = ndk.storeSubscribe(
 			{ kinds: [3], authors: [pubkey] },

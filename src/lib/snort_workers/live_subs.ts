@@ -1,9 +1,8 @@
-import { seedRelays } from '@/workers/seed_relays';
-import type { Command } from './types';
 import { NostrSystem, RequestBuilder } from '@snort/system';
 import type { NostrEvent } from 'nostr-tools';
-import { getNostrEvent } from './utils';
 import { writable } from 'svelte/store';
+import type { Command } from './types';
+import { seedRelays } from '@/workers_snort/seed_relays';
 
 let events = new Map<string, NostrEvent>();
 let eventStore = writable(events);

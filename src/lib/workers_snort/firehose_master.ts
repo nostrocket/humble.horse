@@ -1,6 +1,6 @@
-import { get, writable, type Writable } from 'svelte/store';
-import { Command, FrontendData, WorkerData } from './firehose.types';
 import { currentPubkey } from '@/stores/user';
+import { get, writable, type Writable } from 'svelte/store';
+import { Command, FrontendData } from './firehose.types';
 
 
 export let responseFromWorker: Writable<FrontendData> = writable(new FrontendData());

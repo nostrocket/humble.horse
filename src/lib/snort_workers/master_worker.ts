@@ -1,10 +1,11 @@
-import { seedRelays } from '@/workers/seed_relays';
+
 import { NostrSystem, RequestBuilder } from '@snort/system';
 import { derived, writable } from 'svelte/store';
 import { Command, FrontendData, WorkerData } from './types';
 import { followsFromKind3, getNostrEvent, tagSplits } from './utils';
 import type { NostrEvent } from '@nostr-dev-kit/ndk';
 import WorkerVite from "./live_subs?worker"
+import { seedRelays } from '@/workers_snort/seed_relays';
 
 let workerData = new WorkerData();
 let workerDataStore = writable(workerData);
