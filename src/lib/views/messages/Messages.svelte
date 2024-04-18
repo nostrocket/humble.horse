@@ -2,13 +2,13 @@
 	import ChatLayout from '@/components/ChatLayout.svelte';
 	import Coracle from '@/components/Coracle.svelte';
 	import { Button } from '@/components/ui/button';
-	import type { FrontendData } from '@/snort_workers/types';
+	import { FrontendDataStore } from '@/snort_workers/main';
+	import { viewed } from '@/workers_snort/firehose_master';
 	import type { NostrEvent } from 'nostr-tools';
 	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
 	import { derived, writable, type Writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
-	import { FrontendDataStore } from '@/snort_workers/main';
 
 	//take current threadparentID (or root) and create a derived store of all events. derive antoher one to pipe it through sorting/filtering store.
 	//
@@ -57,7 +57,7 @@
 		stableShortList.set(_stableShortlist)
 	});
 
-	let viewed: Writable<Set<string>> = writable(new Set());
+	
 
 	renderQueue.subscribe((q) => {});
 

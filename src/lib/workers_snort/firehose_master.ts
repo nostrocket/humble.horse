@@ -4,6 +4,7 @@ import { Command, FrontendData } from './firehose.types';
 
 
 export let responseFromWorker: Writable<FrontendData> = writable(new FrontendData());
+export let viewed: Writable<Set<string>> = writable(new Set());
 let initted = false
 export function Init() {
     if (!initted) {
