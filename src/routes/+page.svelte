@@ -4,4 +4,4 @@
 
 </script>
 
-<Messages {FrontendDataStore} />
+<Messages />

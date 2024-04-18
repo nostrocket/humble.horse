@@ -8,10 +8,11 @@
 	import { derived, writable, type Writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
+	import { FrontendDataStore } from '@/snort_workers/main';
 
 	//take current threadparentID (or root) and create a derived store of all events. derive antoher one to pipe it through sorting/filtering store.
 	//
-export let FrontendDataStore: Writable<FrontendData>
+//export let FrontendDataStore: Writable<FrontendData>
 
 
 	let threadParentIDChain = writable(['root']);
