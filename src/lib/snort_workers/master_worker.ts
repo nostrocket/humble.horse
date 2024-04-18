@@ -4,6 +4,7 @@ import { derived, writable } from 'svelte/store';
 import { Command, FrontendData, WorkerData } from './types';
 import { followsFromKind3, getNostrEvent, tagSplits } from './utils';
 import type { NostrEvent } from '@nostr-dev-kit/ndk';
+import WorkerVite from "./live_subs?worker"
 
 let workerData = new WorkerData();
 let workerDataStore = writable(workerData);
@@ -149,8 +150,9 @@ async function PermaSub(pubkeys: string[]) {
 		if (permaSub) {
 			permaSub.terminate();
 		}
-		const w = await import('./live_subs.ts?worker');
-		permaSub = new w.default();
+		//const w = await import('./live_subs.ts?worker');
+		//permaSub = new w.default();
+		permaSub = new WorkerVite()
 		permaSub.onmessage = (x: MessageEvent<Map<string, NostrEvent>>) => {
 			workerDataStore.update(current=>{
 				current.events = new Map([...x.data, ...current.events])
@@ -237,3 +239,4 @@ async function PermaSub(pubkeys: string[]) {
 	}
 }
 
+export default{}
