@@ -8,15 +8,29 @@
 	import type { FrontendData } from '@/snort_workers/types';
 	import { inview } from 'svelte-inview';
 	import { viewed } from '@/workers_snort/firehose_master';
+	import { onMount } from 'svelte';
 
 	export let note: NostrEvent;
 	export let onClickReply: () => void;
 	export let store: Writable<FrontendData>;
 
+	export let isTop: boolean = false;
+
+    let top: HTMLDivElement;
+
+onMount(() => {
+    if (isTop) {
+        (async () => {
+        top.scrollIntoView()
+        //top.scrollIntoView()
+    })();
+    }
+});
+
 	$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
 </script>
 
-<div class="w-full mt-2">
+<div bind:this={top} class="w-full mt-2">
 	<div class="grid">
 		<div class="flex gap-2">
 			<img
@@ -55,12 +69,11 @@
 						</div>
 					</div>
 					<div class="flex justify-between">
-                        <h6 class="text-gray-500 text-xs font-normal leading-4 py-1">
-                            
-                        </h6>
+						<h6 class="text-gray-500 text-xs font-normal leading-4 py-1"></h6>
 						<div class="justify-end items-center inline-flex">
 							<h6 class="text-gray-500 text-xs font-normal leading-4 py-1">
-								{new Date(note.created_at * 1000).toLocaleString()} {#if $viewed.has(note.id)}✓{/if}
+								{new Date(note.created_at * 1000).toLocaleString()}
+								{#if $viewed.has(note.id)}✓{/if}
 							</h6>
 						</div>
 					</div>

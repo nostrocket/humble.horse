@@ -12,8 +12,7 @@
 
 	//take current threadparentID (or root) and create a derived store of all events. derive antoher one to pipe it through sorting/filtering store.
 	//
-//export let FrontendDataStore: Writable<FrontendData>
-
+	//export let FrontendDataStore: Writable<FrontendData>
 
 	let threadParentIDChain = writable(['root']);
 
@@ -54,49 +53,50 @@
 
 	threadParentID.subscribe(() => {
 		_stableShortlist = [];
-		stableShortList.set(_stableShortlist)
+		stableShortList.set(_stableShortlist);
 	});
-
-	
 
 	renderQueue.subscribe((q) => {});
 
 	//remove viewed and add new items that haven't been viewed
-	let shortListLength = derived([renderQueue, viewed, threadParentID], ([$renderQ, $viewed, $parentID]) => {
-		let dirty = false;
-		let updated: NostrEvent[] = [];
-		for (let e of _stableShortlist) {
-			if (!$viewed.has(e.id) || $parentID != "root") {
-				//console.log(72, e.id);
-				updated.push(e);
-			} else {
-				dirty = true;
+	let shortListLength = derived(
+		[renderQueue, viewed, threadParentID],
+		([$renderQ, $viewed, $parentID]) => {
+			let dirty = false;
+			let updated: NostrEvent[] = [];
+			for (let e of _stableShortlist) {
+				if (!$viewed.has(e.id) || $parentID != 'root') {
+					//console.log(72, e.id);
+					updated.push(e);
+				} else {
+					dirty = true;
+				}
 			}
-		}
-		let needed = 6 - updated.length;
-		if (needed > 0) {
-			let pushed = 0;
-			for (let e of $renderQ) {
-				if (needed > pushed) {
-					if (!$viewed.has(e.id) && !arrayContainsEvent(updated, e.id)) {
-						pushed++;
-						updated.push(e);
-						//console.log(84, pushed);
-						dirty = true;
+			let needed = 6 - updated.length;
+			if (needed > 0) {
+				let pushed = 0;
+				for (let e of $renderQ) {
+					if (needed > pushed) {
+						if (!$viewed.has(e.id) && !arrayContainsEvent(updated, e.id)) {
+							pushed++;
+							updated.push(e);
+							//console.log(84, pushed);
+							dirty = true;
+						}
 					}
 				}
 			}
+			if (dirty) {
+				_stableShortlist = updated;
+				stableShortList.update((c) => {
+					c = updated;
+					return c;
+				});
+				//console.log(90);
+			}
+			return _stableShortlist.length;
 		}
-		if (dirty) {
-			_stableShortlist = updated;
-			stableShortList.update((c) => {
-				c = updated;
-				return c;
-			});
-			//console.log(90);
-		}
-		return _stableShortlist.length;
-	});
+	);
 
 	function arrayContainsEvent(a: NostrEvent[], id: string): boolean {
 		let inSet = new Set<string>();
@@ -117,26 +117,30 @@
 		{/if}
 	</div>
 	<slot>
-		{#if $stableShortList.length > 0 || $threadParentID != "root"}
-		{#if $threadParentID != "root"}
-		<RenderKind1AsThreadHead store={FrontendDataStore} note={$FrontendDataStore.rawEvents.get($threadParentID)}/>
-		{/if}
-			{#each $stableShortList as event, i (event.id)}<RenderKind1
+		{#if $stableShortList.length > 0 || $threadParentID != 'root'}
+			{#if $threadParentID != 'root'}
+				<RenderKind1AsThreadHead
 					store={FrontendDataStore}
-					note={event}
-					onClickReply={() => {
-						if ($threadParentID == "root") {
-							viewed.update((v) => {
-							v.add(event.id);
-							return v;
-						});
-						}
-						threadParentIDChain.update((exising) => {
-							exising.push(event.id);
-							return exising;
-						});
-					}}
-				/>{/each}
+					note={$FrontendDataStore.rawEvents.get($threadParentID)}
+				/>
+			{/if}
+				{#each $stableShortList as event, i (event.id)}<RenderKind1 isTop={(event.id == $stableShortList[0].id) && $threadParentID == "root"}
+						store={FrontendDataStore}
+						note={event}
+						onClickReply={() => {
+							if ($threadParentID == 'root') {
+								viewed.update((v) => {
+									v.add(event.id);
+									return v;
+								});
+							}
+							threadParentIDChain.update((exising) => {
+								exising.push(event.id);
+								return exising;
+							});
+						}}
+					/>
+				{/each}
 		{:else}
 			<Coracle />
 		{/if}
