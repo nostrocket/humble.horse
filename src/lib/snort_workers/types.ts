@@ -10,6 +10,9 @@ export class Command {
 }
 
 export class WorkerData {
+	missingEvents: Set<string>;
+	roots: Set<string>;
+	replies: Map<string, Set<string>>;
 	events: Map<string, NostrEvent>;
 	_ourPubkey: string | undefined;
 	_ourFollows: Set<string>;
@@ -29,23 +32,28 @@ export class WorkerData {
     }
     latestReplaceable: Map<string, Map<string, NostrEvent>>
 	constructor(pubkey?: string) {
+		this.missingEvents = new Set()
         this.latestReplaceable = new Map()
 		this.events = new Map();
         if (pubkey && pubkey.length == 64) {
             this._ourPubkey = pubkey
         }
 		this._ourFollows = new Set();
+		this.roots = new Set();
+		this.replies = new Map()
 	}
 }
 
 export class FrontendData {
 	roots: NostrEvent[];
-	replies: Map<string, Set<NostrEvent>>
+	replies: Map<string, Set<string>>
 	basePubkey: string;
 	baseFollows: Set<string>
+	rawEvents: Map<string, NostrEvent>;
 	constructor() {
 		this.roots = []
 		this.replies = new Map()
 		this.baseFollows = new Set()
+		this.rawEvents = new Map()
 	}
 }

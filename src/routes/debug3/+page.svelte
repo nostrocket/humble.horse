@@ -13,10 +13,10 @@
 		{#if FrontendDataStore && $FrontendDataStore}
 		<button on:click={()=>{console.log($FrontendDataStore)}}>print</button>
 		Base Pubkey: {$FrontendDataStore.basePubkey} <br />
-		FOLLOWS:
+		EVENTS:
 		<hr />
 		<ul>
-		{#each $FrontendDataStore.baseFollows as pubkey}<li>{pubkey}</li>{/each}
+		{#each $FrontendDataStore.roots as event}<li class=" m-4">{event.content} <br />REPLIES: {$FrontendDataStore.replies.get(event.id)?.size}</li>{/each}
 	</ul>
 		{/if}
 	</slot>

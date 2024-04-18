@@ -13,7 +13,7 @@ onmessage = (m: MessageEvent<Command>) => {
 	if (m.data.command == 'sub_to_pubkeys') {
 		if (m.data.pubkeys && m.data.pubkeys.length > 0) start(m.data.pubkeys);
 		eventStore.subscribe((evs) => {
-            console.log(evs.size)
+            postMessage(evs)
             //postMessage(evs.size)
 			// for (let [id, e] of evs) {
 			// 	postMessage(e);
@@ -43,12 +43,12 @@ async function start(pubkeys: string[]) {
 			q.on('event', (evs): void => {
                 total += evs.length
                 count ++
-                console.log(count, evs.length, total)
+                //console.log(count, evs.length, total)
                 //console.log(42, evs.length)
 				//let dirty = false;
-                // evs.forEach(e=>{
-                //     events.set(e.id, e)
-                // })
+                evs.forEach(e=>{
+                    events.set(e.id, e)
+                })
                 // evs.forEach(e=>{
                 //     if (!events.has(e.id)) {
 				// 		dirty = true;
@@ -64,9 +64,9 @@ async function start(pubkeys: string[]) {
 				// 	}
 				// }
 				// if (true) {
-					// eventStore.update((d) => {
-					// 	return d;
-					// });
+					eventStore.update((d) => {
+						return d;
+					});
 				// }
 			});
 		})();
