@@ -62,12 +62,11 @@
 	renderQueue.subscribe((q) => {});
 
 	//remove viewed and add new items that haven't been viewed
-	let shortListLength = derived([renderQueue, viewed], ([$renderQ, $viewed]) => {
-		//todo: if root cool, but if not, keep loading more 3 at a time
+	let shortListLength = derived([renderQueue, viewed, threadParentID], ([$renderQ, $viewed, $parentID]) => {
 		let dirty = false;
 		let updated: NostrEvent[] = [];
 		for (let e of _stableShortlist) {
-			if (!$viewed.has(e.id)) {
+			if (!$viewed.has(e.id) || $parentID != "root") {
 				//console.log(72, e.id);
 				updated.push(e);
 			} else {

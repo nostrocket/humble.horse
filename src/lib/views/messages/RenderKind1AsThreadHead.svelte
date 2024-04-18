@@ -7,6 +7,7 @@
 	import Reply from "./Reply.svelte";
 	import { derived, type Writable } from "svelte/store";
 	import type { FrontendData } from "@/snort_workers/types";
+	import { viewed } from "@/workers_snort/firehose_master";
 
     export let note:NostrEvent
     export let store: Writable<FrontendData>
@@ -32,7 +33,7 @@
                     </div>
                     <div class="justify-end items-center inline-flex">
                         <h6 class="text-gray-500 text-xs font-normal leading-4 py-1">
-                            {new Date(note.created_at * 1000).toLocaleString()}
+                            {new Date(note.created_at * 1000).toLocaleString()}{#if $viewed.has(note.id)}✓{/if}
                         </h6>
                     </div>
                 </div>
