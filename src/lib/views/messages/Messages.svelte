@@ -111,7 +111,7 @@
 <ChatLayout hideFaucet={$threadParentID != 'root'}>
 	<div slot="buttons">
 		{#if $threadParentID != 'root'}
-			<div class="mt-2"><Button onClick={pop}><ArrowTurnUpSolid /></Button></div>
+			<div class=""><Button onClick={pop}><ArrowTurnUpSolid /></Button></div>
 		{/if}
 	</div>
 	<slot>
