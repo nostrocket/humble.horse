@@ -24,7 +24,7 @@ export function UpdatePubkey(pubkey:string) {
 
 }
 
-export function PushEvent(e: NostrEvent) {
+export function PushEvent(e: NostrEvent[]) {
     if (worker) {
         let cmd = new Command("push_event")
         cmd.event = e

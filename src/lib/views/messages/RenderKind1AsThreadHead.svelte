@@ -12,8 +12,6 @@
 	export let note: NostrEvent;
 	export let store: Writable<FrontendData>;
 
-
-
 	let top: HTMLDivElement;
 	let q: QueryLike;
 
@@ -22,17 +20,15 @@
 			// ID should be unique to the use case, this is important as all data fetched from this ID will be merged into the same NoteStore
 			const rb = new RequestBuilder(`get-${note.id}`);
 			rb.withFilter().tag('e', [note.id]).kinds([1]);
-			rb.withOptions({leaveOpen: false})
-			console.log(26)
-			console.log(rb)
-			console.log(28)
+			rb.withOptions({ leaveOpen: false });
 			q = System.Query(rb);
 			// basic usage using "onEvent", fired every 100ms
 			q.on('event', (evs) => {
-				console.log(35, evs);
-				evs.forEach(e=>{
-					PushEvent(e)
-				})
+				if (evs.length > 0) {
+					console.log(35, evs);
+					PushEvent(evs);
+				}
+
 				// something else..
 			});
 		})();
@@ -43,11 +39,11 @@
 		})();
 	});
 
-	onDestroy(()=>{
+	onDestroy(() => {
 		if (q) {
-			q.cancel()
+			q.cancel();
 		}
-	})
+	});
 
 	$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
 </script>

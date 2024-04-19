@@ -66,5 +66,8 @@ export class tagSplits {
         if (this.replies.size == 0 && this.unlabelled.size == 1) {
             this.replies.add([...this.unlabelled][0]);
         }
+        if (this.replies.size == 0 && this.roots.size == 1) {
+            this.replies.add([...this.roots][0]);
+        }
     }
 }

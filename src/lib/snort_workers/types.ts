@@ -5,7 +5,7 @@ export class Command {
 	pubkey?: string;
 	pubkeys?: string[];
 	events?: string[];
-	event?: NostrEvent;
+	event?: NostrEvent[];
 	constructor(command: 'start' | 'sub_to_pubkeys' | 'fetch_events' | 'push_event') {
 		this.command = command;
 	}

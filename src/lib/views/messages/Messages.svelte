@@ -38,6 +38,8 @@
 					let ev = $fds.rawEvents.get(id);
 					if (ev) {
 						fullSet.set(id, ev);
+					} else {
+						throw new Error("this should not happen")
 					}
 				}
 			}
@@ -150,6 +152,8 @@
 			<h3>HUMBLE HORSE</h3>
 			<h6>Release Name: "Giddy Up"</h6>
 			Events in memory: {$FrontendDataStore.rawEvents.size}<br />
+			<Button onClick={()=>{console.log($FrontendDataStore.replies.get($threadParentID))}}>Print root event data</Button>
+
 		</div>
 	</div>
 </ChatLayout>
