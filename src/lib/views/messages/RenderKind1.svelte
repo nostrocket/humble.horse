@@ -7,8 +7,8 @@
 	import { derived, type Writable } from 'svelte/store';
 	import type { FrontendData } from '@/snort_workers/types';
 	import { inview } from 'svelte-inview';
-	import { viewed } from '@/workers_snort/firehose_master';
 	import { onMount } from 'svelte';
+	import { viewed } from '@/snort_workers/main';
 
 	export let note: NostrEvent;
 	export let onClickReply: () => void;

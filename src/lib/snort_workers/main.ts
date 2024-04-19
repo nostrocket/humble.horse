@@ -1,9 +1,10 @@
-import { writable } from 'svelte/store';
+import { writable, type Writable } from 'svelte/store';
 import { Command, FrontendData } from './types';
 
 import WorkerVite from "./master_worker?worker"
 
 export let FrontendDataStore = writable(new FrontendData())
+export let viewed: Writable<Set<string>> = writable(new Set());
 
 export async function Init() {
     const worker = new WorkerVite()

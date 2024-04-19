@@ -1,13 +1,10 @@
 <script lang="ts">
 	import RenderNoteContent from '@/components/RenderNoteContent.svelte';
-	import Marcus from './Marcus.svelte';
-	import type { NostrEvent } from 'nostr-tools';
-	import Zap from './Zap.svelte';
-	import Reply from './Reply.svelte';
-	import { derived, type Writable } from 'svelte/store';
+	import { viewed } from '@/snort_workers/main';
 	import type { FrontendData } from '@/snort_workers/types';
-	import { viewed } from '@/workers_snort/firehose_master';
+	import type { NostrEvent } from 'nostr-tools';
 	import { onMount } from 'svelte';
+	import { type Writable } from 'svelte/store';
 
 	export let note: NostrEvent;
 	export let store: Writable<FrontendData>;

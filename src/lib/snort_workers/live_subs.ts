@@ -2,7 +2,7 @@ import { NostrSystem, RequestBuilder } from '@snort/system';
 import type { NostrEvent } from 'nostr-tools';
 import { writable } from 'svelte/store';
 import type { Command } from './types';
-import { seedRelays } from '@/workers_snort/seed_relays';
+import { seedRelays } from '@/snort_workers/seed_relays';
 
 let events = new Map<string, NostrEvent>();
 let eventStore = writable(events);
