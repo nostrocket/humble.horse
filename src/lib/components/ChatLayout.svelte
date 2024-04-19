@@ -19,7 +19,7 @@
 	export let hideFaucet = false;
 </script>
 
-<div class="flex h-screen w-screen flex-row">
+<div class="flex h-full w-full flex-row">
 	<!-- Icon Sidebar -->
 	<div class="w-12 flex-shrink-0 block bg-orange-500 dark:bg-cyan-950">
 		<div class="flex h-full flex-col bg-layer-2">
@@ -68,13 +68,13 @@
 	</div>
 
 	<div class="flex-1">
-		<div class="h-screen flex-col">
+		<div class="h-full flex-col">
 			<div class="h-5/6 bg-white dark:bg-slate-900 overflow-x-hidden overflow-y-scroll no-scrollbar"><slot /></div>
 			<div class="h-1/6"><slot name="input" /></div>
 		</div>
 	</div>
 	<div class="hidden flex-1 lg:block">
-		<div class="h-screen flex-col">
+		<div class="h-full flex-col">
 			<div class="h-full flex-1 bg-zinc-400 dark:bg-cyan-800"><slot name="right" /></div>
 		</div>
 	</div>
