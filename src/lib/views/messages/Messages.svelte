@@ -1,14 +1,14 @@
 <script lang="ts">
+	import Button from '@/components/Button.svelte';
 	import ChatLayout from '@/components/ChatLayout.svelte';
 	import Coracle from '@/components/Coracle.svelte';
 	import { FrontendDataStore } from '@/snort_workers/main';
 	import { viewed } from '@/workers_snort/firehose_master';
 	import type { NostrEvent } from 'nostr-tools';
-	import { ArrowTurnUpSolid, FaucetSolid } from 'svelte-awesome-icons';
+	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
 	import { derived, writable, type Writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
-	import Button from '@/components/Button.svelte';
 
 	//take current threadparentID (or root) and create a derived store of all events. derive antoher one to pipe it through sorting/filtering store.
 	//
