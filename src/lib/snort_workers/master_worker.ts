@@ -55,12 +55,21 @@ lengthOfFollows.subscribe((x) => {
 
 //contract:
 onmessage = (m: MessageEvent<Command>) => {
+	console.log(58)
 	if (m.data.command == 'start') {
 		start(m.data.pubkey)
 			.then(() => {})
 			.catch((err) => {
 				console.log(err);
 			});
+	}
+	if (m.data.command == 'push_event') {
+		
+		workerDataStore.update(current=>{
+			console.log(m.data.event)
+			current.events.set(m.data.event!.id, m.data.event!)
+			return current
+		})
 	}
 };
 
@@ -166,7 +175,7 @@ async function PermaSub(pubkeys: string[]) {
 						if (printed < 20 && !printedID.has(tagsForEvent.id)) {
 							printed++;
 							printedID.add(tagsForEvent.id);
-							console.log('unknown tag detected', printed, tagsForEvent.rawEvent);
+							//console.log('unknown tag detected', printed, tagsForEvent.rawEvent);
 						}
 					}
 					tagsForEvent.roots.forEach((r) => {

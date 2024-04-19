@@ -1,22 +1,53 @@
 <script lang="ts">
 	import RenderNoteContent from '@/components/RenderNoteContent.svelte';
-	import { viewed } from '@/snort_workers/main';
+	import { PushEvent, viewed } from '@/snort_workers/main';
+	import { seedRelays } from '@/snort_workers/seed_relays';
 	import type { FrontendData } from '@/snort_workers/types';
+	import { NostrSystem, RequestBuilder, type QueryLike } from '@snort/system';
 	import type { NostrEvent } from 'nostr-tools';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { type Writable } from 'svelte/store';
+	import { System, init } from './snort';
 
 	export let note: NostrEvent;
 	export let store: Writable<FrontendData>;
 
+
+
 	let top: HTMLDivElement;
+	let q: QueryLike;
 
 	onMount(() => {
 		(async () => {
-            top.scrollIntoView()
-            //top.scrollIntoView()
-        })();
+			// ID should be unique to the use case, this is important as all data fetched from this ID will be merged into the same NoteStore
+			const rb = new RequestBuilder(`get-${note.id}`);
+			rb.withFilter().tag('e', [note.id]).kinds([1]);
+			rb.withOptions({leaveOpen: false})
+			console.log(26)
+			console.log(rb)
+			console.log(28)
+			q = System.Query(rb);
+			// basic usage using "onEvent", fired every 100ms
+			q.on('event', (evs) => {
+				console.log(35, evs);
+				evs.forEach(e=>{
+					PushEvent(e)
+				})
+				// something else..
+			});
+		})();
+
+		(async () => {
+			top.scrollIntoView();
+			//top.scrollIntoView()
+		})();
 	});
+
+	onDestroy(()=>{
+		if (q) {
+			q.cancel()
+		}
+	})
 
 	$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
 </script>
