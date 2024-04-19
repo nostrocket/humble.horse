@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { Button } from "@/components/ui/button";
 	import { currentPubkey } from "@/stores/user";
 	import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
 	import { Person } from "radix-icons-svelte";
 	import { onMount } from "svelte";
+	import Button from "./Button.svelte";
+	import { KeySolid } from "svelte-awesome-icons";
 
     onMount(() => {
         if (localStorage.getItem("signed-in")) {
@@ -33,6 +34,6 @@
     }
 </script>
 
-<Button on:click={nip07}>
-    <Person class="w-4 h-4" />
+<Button onClick={nip07}>
+    <KeySolid />
 </Button>
