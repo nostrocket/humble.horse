@@ -1,14 +1,14 @@
 <script lang="ts">
 	import ChatLayout from '@/components/ChatLayout.svelte';
 	import Coracle from '@/components/Coracle.svelte';
-	import { Button } from '@/components/ui/button';
 	import { FrontendDataStore } from '@/snort_workers/main';
 	import { viewed } from '@/workers_snort/firehose_master';
 	import type { NostrEvent } from 'nostr-tools';
-	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
+	import { ArrowTurnUpSolid, FaucetSolid } from 'svelte-awesome-icons';
 	import { derived, writable, type Writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
+	import Button from '@/components/Button.svelte';
 
 	//take current threadparentID (or root) and create a derived store of all events. derive antoher one to pipe it through sorting/filtering store.
 	//
@@ -108,12 +108,10 @@
 </script>
 
 <div class=" hidden">{$shortListLength}</div>
-<ChatLayout>
+<ChatLayout hideFaucet={$threadParentID != 'root'}>
 	<div slot="buttons">
 		{#if $threadParentID != 'root'}
-			<Button on:click={pop} variant="outline" size="icon" class="-scale-x-100 hover:skew-y-12"
-				><ArrowTurnUpSolid /></Button
-			>
+			<Button onClick={pop}><ArrowTurnUpSolid /></Button>
 		{/if}
 	</div>
 	<slot>
@@ -124,23 +122,24 @@
 					note={$FrontendDataStore.rawEvents.get($threadParentID)}
 				/>
 			{/if}
-				{#each $stableShortList as event, i (event.id)}<RenderKind1 isTop={(event.id == $stableShortList[0].id) && $threadParentID == "root"}
-						store={FrontendDataStore}
-						note={event}
-						onClickReply={() => {
-							if ($threadParentID == 'root') {
-								viewed.update((v) => {
-									v.add(event.id);
-									return v;
-								});
-							}
-							threadParentIDChain.update((exising) => {
-								exising.push(event.id);
-								return exising;
+			{#each $stableShortList as event, i (event.id)}<RenderKind1
+					isTop={event.id == $stableShortList[0].id && $threadParentID == 'root'}
+					store={FrontendDataStore}
+					note={event}
+					onClickReply={() => {
+						if ($threadParentID == 'root') {
+							viewed.update((v) => {
+								v.add(event.id);
+								return v;
 							});
-						}}
-					/>
-				{/each}
+						}
+						threadParentIDChain.update((exising) => {
+							exising.push(event.id);
+							return exising;
+						});
+					}}
+				/>
+			{/each}
 		{:else}
 			<Coracle />
 		{/if}

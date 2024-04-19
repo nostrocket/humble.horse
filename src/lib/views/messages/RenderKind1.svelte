@@ -30,7 +30,7 @@ onMount(() => {
 	$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
 </script>
 
-<div bind:this={top} class="w-full mt-2">
+<div bind:this={top} class="w-full pt-2">
 	<div class="grid">
 		<div class="flex gap-2">
 			<img

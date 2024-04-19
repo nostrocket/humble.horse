@@ -2,7 +2,8 @@
 	import ChatLayout from '@/components/ChatLayout.svelte';
 </script>
 <ChatLayout>
-	<div class="mt-2"></div>
+	<div slot="buttons"></div>
+	<div class="pt-2"></div>
 	<div class="w-full">
 		<div class="grid pb-11">
 			<div class="flex gap-2.5 mb-4">
