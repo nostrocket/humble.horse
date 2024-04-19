@@ -9,6 +9,7 @@
 	import { derived, writable, type Writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
+	import MessageInput from '@/components/MessageInput.svelte';
 
 	//take current threadparentID (or root) and create a derived store of all events. derive antoher one to pipe it through sorting/filtering store.
 	//
@@ -144,4 +145,5 @@
 			<Coracle />
 		{/if}
 	</slot>
+	<div slot="input" class="h-full"><MessageInput /></div>
 </ChatLayout>
