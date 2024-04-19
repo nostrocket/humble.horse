@@ -1,10 +1,11 @@
 import type { NostrEvent } from 'nostr-tools';
 
 export class Command {
-	command: 'start' | 'sub_to_pubkeys';
+	command: 'start' | 'sub_to_pubkeys' | 'fetch_events';
 	pubkey?: string;
 	pubkeys?: string[];
-	constructor(command: 'start' | 'sub_to_pubkeys') {
+	events?: string[];
+	constructor(command: 'start' | 'sub_to_pubkeys' | 'fetch_events') {
 		this.command = command;
 	}
 }

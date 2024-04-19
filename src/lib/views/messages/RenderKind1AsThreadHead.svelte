@@ -21,7 +21,7 @@
 	$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
 </script>
 
-<div bind:this={top} class="w-full pt-2">
+<div class="w-full pt-2">
 	<div class="grid">
 		<div class="flex gap-2">
 			<img
@@ -39,7 +39,7 @@
 							<RenderNoteContent inputString={note.content} />
 						</h5>
 					</div>
-					<div class="justify-end items-center inline-flex">
+					<div bind:this={top} class="justify-end items-center inline-flex">
 						<h6 class="text-gray-500 text-xs font-normal leading-4 py-1">
 							{new Date(note.created_at * 1000).toLocaleString()}{#if $viewed.has(note.id)}✓{/if}
 						</h6>

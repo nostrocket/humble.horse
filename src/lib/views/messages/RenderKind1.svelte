@@ -22,7 +22,6 @@ onMount(() => {
     if (isTop) {
         (async () => {
         top.scrollIntoView()
-        //top.scrollIntoView()
     })();
     }
 });

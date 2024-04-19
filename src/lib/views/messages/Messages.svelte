@@ -73,11 +73,11 @@
 				}
 			}
 			let needed = 6 - updated.length;
-			if (needed > 0) {
+			if (needed > 0 || $parentID != 'root') {
 				let pushed = 0;
 				for (let e of $renderQ) {
-					if (needed > pushed) {
-						if (!$viewed.has(e.id) && !arrayContainsEvent(updated, e.id)) {
+					if (needed > pushed || $parentID != 'root') {
+						if ((!$viewed.has(e.id) || $parentID != 'root') && !arrayContainsEvent(updated, e.id)) {
 							pushed++;
 							updated.push(e);
 							//console.log(84, pushed);
@@ -145,4 +145,11 @@
 		{/if}
 	</slot>
 	<div slot="input" class="h-full"><MessageInput /></div>
+	<div slot="right">
+		<div class=" ml-2">
+			<h3>HUMBLE HORSE</h3>
+			<h6>Release Name: "Giddy Up"</h6>
+			Events in memory: {$FrontendDataStore.rawEvents.size}<br />
+		</div>
+	</div>
 </ChatLayout>

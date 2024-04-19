@@ -1,10 +1,10 @@
-
-import { NostrSystem, RequestBuilder } from '@snort/system';
+import { NostrSystem, RequestBuilder, type QueryLike } from '@snort/system';
 import { derived, writable } from 'svelte/store';
 import { Command, FrontendData, WorkerData } from './types';
 import { followsFromKind3, getNostrEvent, tagSplits } from './utils';
 import type { NostrEvent } from '@nostr-dev-kit/ndk';
-import WorkerVite from "./live_subs?worker"
+import WorkerPubkeys from './live_subs?worker';
+import WorkerEvents from './fetch_events?worker';
 import { seedRelays } from '@/snort_workers/seed_relays';
 
 let workerData = new WorkerData();
@@ -14,17 +14,17 @@ workerDataStore.subscribe((data) => {
 	let fed = new FrontendData();
 	fed.basePubkey = data.ourPubkey();
 	fed.baseFollows = data._ourFollows;
-	let roots:NostrEvent[] = []
+	let roots: NostrEvent[] = [];
 	for (let r of data.roots) {
-		let re = data.events.get(r)
+		let re = data.events.get(r);
 		if (!r) {
-			throw new Error("missing event, this should not happen, bug!")
+			throw new Error('missing event, this should not happen, bug!');
 		}
-		roots.push(re!)
+		roots.push(re!);
 	}
-	fed.roots = roots.toSorted((a,b)=>{
-		let a_replies = data.replies.get(a.id!)
-		let b_replies = data.replies.get(b.id!)
+	fed.roots = roots.toSorted((a, b) => {
+		let a_replies = data.replies.get(a.id!);
+		let b_replies = data.replies.get(b.id!);
 		if (a_replies && b_replies) {
 			return b_replies.size - a_replies.size;
 		}
@@ -35,9 +35,9 @@ workerDataStore.subscribe((data) => {
 			return -1;
 		}
 		return 0;
-	})
-	fed.replies = data.replies
-	fed.rawEvents = data.events
+	});
+	fed.replies = data.replies;
+	fed.rawEvents = data.events;
 	//console.log(data)
 	postMessage(fed);
 });
@@ -47,7 +47,7 @@ let lengthOfFollows = derived(workerDataStore, ($wds) => {
 });
 
 lengthOfFollows.subscribe((x) => {
-	console.log("follows updated");
+	console.log('follows updated');
 	if (x > 0) {
 		PermaSub([...workerData._ourFollows]);
 	}
@@ -73,7 +73,7 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 			pubkey = workerData.ourPubkey();
 		}
 		const sys = new NostrSystem({
-			checkSigs: true
+			checkSigs: false
 			// automaticOutboxModel: true,
 			// buildFollowGraph: true,
 		});
@@ -151,18 +151,16 @@ async function PermaSub(pubkeys: string[]) {
 		if (permaSub) {
 			permaSub.terminate();
 		}
-		//const w = await import('./live_subs.ts?worker');
-		//permaSub = new w.default();
-		permaSub = new WorkerVite()
+		permaSub = new WorkerPubkeys();
 		permaSub.onmessage = (x: MessageEvent<Map<string, NostrEvent>>) => {
-			workerDataStore.update(current=>{
-				current.events = new Map([...x.data, ...current.events])
+			workerDataStore.update((current) => {
+				current.events = new Map([...x.data, ...current.events]);
 				//console.log(current.events.size)
-				let printed = 0
-				let printedID = new Set<string>()
+				let printed = 0;
+				let printedID = new Set<string>();
 				for (let [id, e] of current.events) {
-					current.missingEvents.delete(id)
-					let tagsForEvent = new tagSplits(e)
+					current.missingEvents.delete(id);
+					let tagsForEvent = new tagSplits(e);
 					if (tagsForEvent.unknown.size > 0) {
 						//tell user that there's an unhandled tag
 						if (printed < 20 && !printedID.has(tagsForEvent.id)) {
@@ -171,13 +169,13 @@ async function PermaSub(pubkeys: string[]) {
 							console.log('unknown tag detected', printed, tagsForEvent.rawEvent);
 						}
 					}
-					tagsForEvent.roots.forEach(r=>{
+					tagsForEvent.roots.forEach((r) => {
 						if (!current.events.has(r)) {
-							current.missingEvents.add(r)
+							current.missingEvents.add(r);
 						} else {
-							current.roots.add(r)
+							current.roots.add(r);
 						}
-					})
+					});
 					if (
 						(tagsForEvent.replies.size != 1 && tagsForEvent.unlabelled.size > 1) ||
 						tagsForEvent.replies.size > 1
@@ -185,7 +183,7 @@ async function PermaSub(pubkeys: string[]) {
 						//we don't know which tag is the _real_ reply (parent), let's try and find out
 						let possibleParents = new Map<string, NostrEvent>();
 						let possibleReplyTags = new Set([...tagsForEvent.unlabelled, ...tagsForEvent.replies]);
-						let numMissing = 0
+						let numMissing = 0;
 						for (let _id of possibleReplyTags) {
 							let _event = current.events.get(_id);
 							if (_event) {
@@ -193,7 +191,7 @@ async function PermaSub(pubkeys: string[]) {
 							}
 							if (!_event) {
 								current.missingEvents.add(_id);
-								numMissing++
+								numMissing++;
 							}
 						}
 						if (numMissing == 0 && possibleParents.size > 0) {
@@ -224,20 +222,78 @@ async function PermaSub(pubkeys: string[]) {
 					if (tagsForEvent.replies.size == 1) {
 						let existing = current.replies.get([...tagsForEvent.replies][0]);
 						if (!existing) {
-							existing = new Set()
+							existing = new Set();
 						}
 						existing.add(tagsForEvent.id);
 						current.replies.set([...tagsForEvent.replies][0], existing);
 					}
 				}
-				return current
-			})
-			
+				return current;
+			});
 		};
-		let cmd = new Command('sub_to_pubkeys')
-		cmd.pubkeys = pubkeys
+		let cmd = new Command('sub_to_pubkeys');
+		cmd.pubkeys = pubkeys;
 		permaSub.postMessage(cmd);
 	}
 }
 
-export default{}
+let numberOfMissingEvents = derived(workerDataStore, ($wds) => {
+	return $wds.missingEvents.size;
+});
+
+//let fetchEventsWorker: Worker | undefined = undefined;
+
+const missingEventSys = new NostrSystem({
+	checkSigs: false
+	// automaticOutboxModel: true,
+	// buildFollowGraph: true,
+});
+
+ 
+let q: QueryLike
+
+
+
+let fmeStarted = false;
+function fmeStart() {
+	if (!fmeStarted) {
+		fmeStarted = true;
+		seedRelays.forEach((r) => missingEventSys.ConnectToRelay(r, { read: true, write: false }));
+	}
+}
+
+numberOfMissingEvents.subscribe((n) => {
+	if (n > 0) {
+		fmeStart()
+		const rb = new RequestBuilder('fetch-missing-events');
+		rb.withFilter().ids([...workerData.missingEvents])
+		rb.withOptions({ leaveOpen: false });
+		if (q) {q.cancel()}
+		q = missingEventSys.Query(rb);
+		q.on('event', (evs): void => {
+			evs.forEach(e=>{
+				workerData.events.set(e.id, getNostrEvent(e))
+			})
+		})
+
+		// console.log(248, n)
+		// if (fetchEventsWorker) {
+		// 	fetchEventsWorker.terminate();
+		// }
+		// fetchEventsWorker = new WorkerEvents();
+		// fetchEventsWorker.onmessage = (x: MessageEvent<Map<string, NostrEvent>>) => {
+		// 	console.log(253, x.data.size);
+		// 	for (let [_, e] of x.data) {
+		// 		workerData.events.set(e.id!, e);
+		// 	}
+		// 	workerDataStore.update((x) => {
+		// 		return x;
+		// 	});
+		// };
+		// let cmd = new Command('sub_to_pubkeys');
+		// cmd.events = [...workerData.missingEvents];
+		// fetchEventsWorker.postMessage(cmd);
+	}
+});
+
+export default {};
