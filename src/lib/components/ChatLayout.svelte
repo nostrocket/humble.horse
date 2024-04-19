@@ -53,7 +53,7 @@
 			<!-- <Button onClick={()=>{goto(`${base}/debug`)}}><ToolboxSolid /></Button
 			> -->
 			<Button><PodcastSolid /></Button>
-			<Button
+			<Button notifs={0}
 				onClick={() => {
 					goto(`${base}/marcus`);
 				}}><img class="w-9 min-w-9" src={`${base}/marcus.png`} /></Button

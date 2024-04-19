@@ -14,7 +14,7 @@
 
 		formattedInput = formattedInput.replace(nostr, (s)=>{
 			s = s.replace("nostr:", "");
-			return ` <a href="https://njump.me/${s}">njump</a> ` //todo: render mentioned notes inline, render usernames for npubs, 
+			return ` <a class="underline decoration-solid text-sky-500" href="https://njump.me/${s}">njump</a> ` //todo: render mentioned notes inline, render usernames for npubs, 
 		});
 
 		// regex to find URLs
