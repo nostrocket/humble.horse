@@ -10,6 +10,7 @@
 	import { onMount } from 'svelte';
 	import { viewed } from '@/snort_workers/main';
 	import UserDisplayName from '@/components/UserDisplayName.svelte';
+	import UserProfilePic from '@/components/UserProfilePic.svelte';
 
 	export let note: NostrEvent;
 	export let onClickReply: () => void;
@@ -32,12 +33,12 @@ onMount(() => {
 
 <div bind:this={top} class="w-full pt-2 pl-2 pr-2">
 	<div class="grid">
-		<div class="flex gap-2">
-			<img
+		<div class="flex gap-2"><UserProfilePic pubkey={note.pubkey} />
+			<!-- <img
 				class="w-8 h-8 rounded-full"
 				src="https://zenquotes.io/img/marcus-aurelius.jpg"
 				alt="profile pic"
-			/>
+			/> -->
 			<div class="grid">
 				<h5 class="text-gray-900 dark:text-orange-600 font-semibold leading-snug pb-1"><UserDisplayName pubkey={note.pubkey} /></h5> 
 				<div class="grid overflow-hidden mr-2 min-w-56">
