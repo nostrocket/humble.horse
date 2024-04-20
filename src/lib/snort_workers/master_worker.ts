@@ -9,7 +9,7 @@ let workerData = new WorkerData();
 let workerDataStore = writable(workerData);
 
 const sys = new NostrSystem({
-	checkSigs: true
+	checkSigs: false
 	// automaticOutboxModel: true,
 	// buildFollowGraph: true,
 });

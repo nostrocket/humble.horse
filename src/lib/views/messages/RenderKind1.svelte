@@ -39,7 +39,7 @@ onMount(() => {
 				alt="profile pic"
 			/>
 			<div class="grid">
-				<h5 class="text-gray-900 dark:text-orange-600 font-semibold leading-snug pb-1"><UserDisplayName pubkey={note.pubkey}/></h5>
+				<h5 class="text-gray-900 dark:text-orange-600 font-semibold leading-snug pb-1"><UserDisplayName pubkey={note.pubkey} /></h5> 
 				<div class="grid overflow-hidden mr-2 min-w-56">
 					<div
 						class="px-3.5 py-2 bg-gray-200 dark:bg-gray-700 rounded-e-xl rounded-es-xl flex flex-col gap-2"
