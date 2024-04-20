@@ -152,7 +152,7 @@
 			<h3>HUMBLE HORSE</h3>
 			<h6>Release Name: "Giddy Up"</h6>
 			Events in memory: {$FrontendDataStore.rawEvents.size}<br />
-			<Button onClick={()=>{console.log($FrontendDataStore.replies.get($threadParentID))}}>Print root event data</Button>
+			<Button onClick={()=>{console.log($threadParentID, $FrontendDataStore.replies.get($threadParentID))}}>Print root event data</Button>
 
 		</div>
 	</div>

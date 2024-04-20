@@ -1,12 +1,10 @@
+import { seedRelays } from '@/snort_workers/seed_relays';
+import type { NostrEvent } from '@nostr-dev-kit/ndk';
 import { NostrSystem, RequestBuilder, type QueryLike } from '@snort/system';
 import { derived, writable } from 'svelte/store';
-import { Command, FrontendData, WorkerData } from './types';
-import { followsFromKind3, getNostrEvent, tagSplits } from './utils';
-import type { NostrEvent } from '@nostr-dev-kit/ndk';
 import WorkerPubkeys from './live_subs?worker';
-import WorkerEvents from './fetch_events?worker';
-import { seedRelays } from '@/snort_workers/seed_relays';
-import type { Nostr } from 'nostr-tools';
+import { Command, FrontendData, WorkerData } from './types';
+import { execTime, followsFromKind3, getNostrEvent, tagSplits } from './utils';
 
 let workerData = new WorkerData();
 let workerDataStore = writable(workerData);
@@ -27,6 +25,7 @@ async function connect() {
 }
 
 workerDataStore.subscribe((data) => {
+	let end = execTime("28 workerDataStore.subscribe")
 	let fed = new FrontendData();
 	fed.basePubkey = data.ourPubkey();
 	fed.baseFollows = data._ourFollows;
@@ -54,32 +53,44 @@ workerDataStore.subscribe((data) => {
 	});
 	fed.replies = data.replies;
 	fed.rawEvents = data.events;
-	//console.log(data)
 	postMessage(fed);
+	end()
 });
 
 let lengthOfFollows = derived(workerDataStore, ($wds) => {
 	return $wds._ourFollows.size;
 });
 
+
+let q_subToFollows: QueryLike
 lengthOfFollows.subscribe((x) => {
 	console.log('follows updated');
 	if (x > 0) {
-		PermaSub([...workerData._ourFollows]);
+		const rb = new RequestBuilder('sub-to-follows');
+		rb.withFilter().authors([...workerData._ourFollows]).kinds([1])
+		rb.withOptions({ leaveOpen: true });
+		if (q_subToFollows) {q_subToFollows.cancel()}
+		q_subToFollows = sys.Query(rb);
+		q_subToFollows.on('event', (evs): void => {
+			let m = new Map<string, NostrEvent>()
+			for (let e of evs) {
+				m.set(e.id, e)
+			}
+			if (m.size > 0) {
+				updateReplies(m)
+			}
+		})
 	}
 });
 
 //contract:
 onmessage = (m: MessageEvent<Command>) => {
-	console.log(58)
+	let end = execTime("88, onmessage")
 	if (m.data.command == 'start') {
 		start(m.data.pubkey)
-			.then(() => {})
-			.catch((err) => {
-				console.log(err);
-			});
 	}
 	if (m.data.command == 'push_event') {
+		console.log(96)
 		let map = new Map<string, NostrEvent>()
 		if (m.data.event) {
 			for (let e of m.data.event) {
@@ -92,6 +103,7 @@ onmessage = (m: MessageEvent<Command>) => {
 			}
 		}
 	}
+	end()
 };
 
 //connect to seed relays, get our follows and relays.
@@ -168,10 +180,11 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 //fetch all missing roots
 //sort roots by number of responses from our follows
 
-let permaSub: Worker | undefined = undefined;
+//let permaSub: Worker | undefined = undefined;
 
 function updateReplies(newEvents?:Map<string, NostrEvent>) {
 	workerDataStore.update((current) => {
+		let end = execTime("updateReplies")
 		if (newEvents) {
 			current.events = new Map([...newEvents, ...current.events]);
 		}
@@ -248,24 +261,29 @@ function updateReplies(newEvents?:Map<string, NostrEvent>) {
 				current.replies.set([...tagsForEvent.replies][0], existing);
 			}
 		}
+		end()
 		return current;
 	});
 }
 
-async function PermaSub(pubkeys: string[]) {
-	if (pubkeys.length > 0) {
-		if (permaSub) {
-			permaSub.terminate();
-		}
-		permaSub = new WorkerPubkeys();
-		permaSub.onmessage = (x: MessageEvent<Map<string, NostrEvent>>) => {
-			updateReplies(x.data)
-		};
-		let cmd = new Command('sub_to_pubkeys');
-		cmd.pubkeys = pubkeys;
-		permaSub.postMessage(cmd);
-	}
-}
+
+
+// async function PermaSub(pubkeys: string[]) {
+// 	if (pubkeys.length > 0) {
+
+
+// 		if (permaSub) {
+// 			permaSub.terminate();
+// 		}
+// 		permaSub = new WorkerPubkeys();
+// 		permaSub.onmessage = (x: MessageEvent<Map<string, NostrEvent>>) => {
+// 			updateReplies(x.data)
+// 		};
+// 		let cmd = new Command('sub_to_pubkeys');
+// 		cmd.pubkeys = pubkeys;
+// 		permaSub.postMessage(cmd);
+// 	}
+// }
 
 let numberOfMissingEvents = derived(workerDataStore, ($wds) => {
 	return $wds.missingEvents.size;
@@ -275,17 +293,16 @@ let numberOfMissingEvents = derived(workerDataStore, ($wds) => {
 
 
  
-let q: QueryLike
-
-
+let q_missingEvents: QueryLike
 numberOfMissingEvents.subscribe((n) => {
+	let end = execTime("298 numberOfMissingEvents")
 	if (n > 0) {
 		const rb = new RequestBuilder('fetch-missing-events');
 		rb.withFilter().ids([...workerData.missingEvents])
 		rb.withOptions({ leaveOpen: false });
-		if (q) {q.cancel()}
-		q = sys.Query(rb);
-		q.on('event', (evs): void => {
+		if (q_missingEvents) {q_missingEvents.cancel()}
+		q_missingEvents = sys.Query(rb);
+		q_missingEvents.on('event', (evs): void => {
 			let m = new Map<string, NostrEvent>()
 			for (let e of evs) {
 				m.set(e.id, e)
@@ -294,25 +311,10 @@ numberOfMissingEvents.subscribe((n) => {
 				updateReplies(m)
 			}
 		})
-
-		// console.log(248, n)
-		// if (fetchEventsWorker) {
-		// 	fetchEventsWorker.terminate();
-		// }
-		// fetchEventsWorker = new WorkerEvents();
-		// fetchEventsWorker.onmessage = (x: MessageEvent<Map<string, NostrEvent>>) => {
-		// 	console.log(253, x.data.size);
-		// 	for (let [_, e] of x.data) {
-		// 		workerData.events.set(e.id!, e);
-		// 	}
-		// 	workerDataStore.update((x) => {
-		// 		return x;
-		// 	});
-		// };
-		// let cmd = new Command('sub_to_pubkeys');
-		// cmd.events = [...workerData.missingEvents];
-		// fetchEventsWorker.postMessage(cmd);
 	}
+	end()
 });
+
+
 
 export default {};

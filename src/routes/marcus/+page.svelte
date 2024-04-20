@@ -26,7 +26,7 @@
 							</p>
 
                             <p class="text-sm font-normal text-gray-900 dark:text-white py-2">
-								When you click the Marcus button on any note, it will be saved here to your list of personal meditations so that I can remind you to think about them.
+								When you click the Marcus button on any note, it will be saved here to your list of personal meditations so that I can remind you to add them to your life.
 							</p>
 						</div>
 					</div>

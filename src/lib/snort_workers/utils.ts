@@ -2,6 +2,17 @@ import { NDKEvent, type NostrEvent } from '@nostr-dev-kit/ndk';
 import type { TaggedNostrEvent } from '@snort/system';
 import type { Event } from 'nostr-tools';
 
+export let execTime = (name:string):()=>void => {
+    let start = performance.now()
+    let ended = false
+    setTimeout(()=>{if (!ended) {console.log(name, "has timed out")}}, 1000)
+    return () => {
+        let end = performance.now()
+        ended = true
+        console.log(name, end - start, "ms")
+    }
+}
+
 export function getNostrEvent(ev: TaggedNostrEvent): Event {
 	return {
 		id: ev.id,
