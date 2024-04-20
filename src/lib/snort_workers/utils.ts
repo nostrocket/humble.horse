@@ -1,6 +1,7 @@
 import { NDKEvent, type NostrEvent } from '@nostr-dev-kit/ndk';
 import type { TaggedNostrEvent } from '@snort/system';
 import type { Event } from 'nostr-tools';
+import { FrontendData, WorkerData } from './types';
 
 export let execTime = (name:string):()=>void => {
     let start = performance.now()
@@ -79,6 +80,83 @@ export class tagSplits {
         }
         if (this.replies.size == 0 && this.roots.size == 1) {
             this.replies.add([...this.roots][0]);
+        }
+    }
+}
+
+export function updateRepliesInPlace(current:FrontendData | WorkerData) {
+    let printed = 0;
+    let printedID = new Set<string>();
+    for (let [id, e] of current.events) {
+        current.missingEvents.delete(id);
+        let tagsForEvent = new tagSplits(e);
+        if (tagsForEvent.unknown.size > 0) {
+            //tell user that there's an unhandled tag
+            if (printed < 20 && !printedID.has(tagsForEvent.id)) {
+                printed++;
+                printedID.add(tagsForEvent.id);
+                //console.log('unknown tag detected', printed, tagsForEvent.rawEvent);
+            }
+        }
+        tagsForEvent.roots.forEach((r) => {
+            if (!current.events.has(r)) {
+                current.missingEvents.add(r);
+            } else {
+                if (current instanceof WorkerData) {
+                    current.roots.add(r);
+                } 
+            }
+        });
+        if (
+            (tagsForEvent.replies.size != 1 && tagsForEvent.unlabelled.size > 1) ||
+            tagsForEvent.replies.size > 1
+        ) {
+            //we don't know which tag is the _real_ reply (parent), let's try and find out
+            let possibleParents = new Map<string, NostrEvent>();
+            let possibleReplyTags = new Set([...tagsForEvent.unlabelled, ...tagsForEvent.replies]);
+            let numMissing = 0;
+            for (let _id of possibleReplyTags) {
+                let _event = current.events.get(_id);
+                if (_event) {
+                    possibleParents.set(_id, _event);
+                }
+                if (!_event) {
+                    current.missingEvents.add(_id);
+                    numMissing++;
+                }
+            }
+            if (numMissing == 0 && possibleParents.size > 0) {
+                let allTaggedEvents = new Set<string>();
+                for (let [_, e] of possibleParents) {
+                    let splits = new tagSplits(e);
+                    for (let id of splits.All()) {
+                        allTaggedEvents.add(id);
+                    }
+                }
+                let tagsThatAreNotInTaggedEvents = new Set<string>();
+                for (let id of possibleReplyTags) {
+                    if (!allTaggedEvents.has(id)) {
+                        tagsThatAreNotInTaggedEvents.add(id);
+                    }
+                }
+                if (tagsThatAreNotInTaggedEvents.size == 1) {
+                    //console.log("found mistagged reply")
+                    tagsForEvent.replies = new Set([tagsThatAreNotInTaggedEvents][0]);
+                }
+                //if more than one in replies: find all the tagged events and see which tag among all these events is unique (the unique one is probably the reply, and the repeated one(s) are the root or further up in the thread)
+                //console.log('implement me');
+            } else {
+                //console.log(missing)
+                //todo: fetch missing events by ID
+            }
+        }
+        if (tagsForEvent.replies.size == 1) {
+            let existing = current.replies.get([...tagsForEvent.replies][0]);
+            if (!existing) {
+                existing = new Set();
+            }
+            existing.add(tagsForEvent.id);
+            current.replies.set([...tagsForEvent.replies][0], existing);
         }
     }
 }

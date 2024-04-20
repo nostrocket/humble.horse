@@ -2,9 +2,8 @@ import { seedRelays } from '@/snort_workers/seed_relays';
 import type { NostrEvent } from '@nostr-dev-kit/ndk';
 import { NostrSystem, RequestBuilder, type QueryLike } from '@snort/system';
 import { derived, writable } from 'svelte/store';
-import WorkerPubkeys from './live_subs?worker';
 import { Command, FrontendData, WorkerData } from './types';
-import { execTime, followsFromKind3, getNostrEvent, tagSplits } from './utils';
+import { execTime, followsFromKind3, getNostrEvent, tagSplits, updateRepliesInPlace } from './utils';
 
 let workerData = new WorkerData();
 let workerDataStore = writable(workerData);
@@ -18,10 +17,12 @@ const sys = new NostrSystem({
 let connecting = false
 
 async function connect() {
+	let end = execTime("21, connect")
 	if (!connecting) {
 		connecting = true
 		seedRelays.forEach((r) => sys.ConnectToRelay(r, { read: true, write: false }));
 	}
+	end()
 }
 
 workerDataStore.subscribe((data) => {
@@ -52,7 +53,7 @@ workerDataStore.subscribe((data) => {
 		return 0;
 	});
 	fed.replies = data.replies;
-	fed.rawEvents = data.events;
+	fed.events = data.events;
 	postMessage(fed);
 	end()
 });
@@ -64,6 +65,7 @@ let lengthOfFollows = derived(workerDataStore, ($wds) => {
 
 let q_subToFollows: QueryLike
 lengthOfFollows.subscribe((x) => {
+	let end = execTime("69, lengthOfFollows.subscribe")
 	console.log('follows updated');
 	if (x > 0) {
 		const rb = new RequestBuilder('sub-to-follows');
@@ -81,11 +83,13 @@ lengthOfFollows.subscribe((x) => {
 			}
 		})
 	}
+	end()
 });
 
-//contract:
+//contract
 onmessage = (m: MessageEvent<Command>) => {
 	let end = execTime("88, onmessage")
+	if (m.data.command == "ping") {console.log(93, "ping")}
 	if (m.data.command == 'start') {
 		start(m.data.pubkey)
 	}
@@ -117,6 +121,7 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 		}
 		
 		(async () => {
+			let end = execTime("125 async start")
 			const rb = new RequestBuilder('fetch-initial-data');
 			let _pukeys: string[] = [];
 			if (pubkeys) {
@@ -128,8 +133,8 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 			rb.withFilter().authors(_pukeys).kinds([3, 10002]);
 			rb.withOptions({ leaveOpen: false });
 
-			const q = sys.Query(rb);
-			q.on('event', (evs): void => {
+			const _q = sys.Query(rb);
+			_q.on('event', (evs): void => {
 				let updated = new Set<string>();
 				for (let e of evs) {
 					//todo: get all relays from all follows (3, 10002)
@@ -169,6 +174,7 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 						return d;
 					});
 				}
+				end()
 				//todo: get all relays from all follows (3, 10002)
 			});
 		})();
@@ -188,79 +194,7 @@ function updateReplies(newEvents?:Map<string, NostrEvent>) {
 		if (newEvents) {
 			current.events = new Map([...newEvents, ...current.events]);
 		}
-		//console.log(current.events.size)
-		let printed = 0;
-		let printedID = new Set<string>();
-		for (let [id, e] of current.events) {
-			current.missingEvents.delete(id);
-			let tagsForEvent = new tagSplits(e);
-			if (tagsForEvent.unknown.size > 0) {
-				//tell user that there's an unhandled tag
-				if (printed < 20 && !printedID.has(tagsForEvent.id)) {
-					printed++;
-					printedID.add(tagsForEvent.id);
-					//console.log('unknown tag detected', printed, tagsForEvent.rawEvent);
-				}
-			}
-			tagsForEvent.roots.forEach((r) => {
-				if (!current.events.has(r)) {
-					current.missingEvents.add(r);
-				} else {
-					current.roots.add(r);
-				}
-			});
-			if (
-				(tagsForEvent.replies.size != 1 && tagsForEvent.unlabelled.size > 1) ||
-				tagsForEvent.replies.size > 1
-			) {
-				//we don't know which tag is the _real_ reply (parent), let's try and find out
-				let possibleParents = new Map<string, NostrEvent>();
-				let possibleReplyTags = new Set([...tagsForEvent.unlabelled, ...tagsForEvent.replies]);
-				let numMissing = 0;
-				for (let _id of possibleReplyTags) {
-					let _event = current.events.get(_id);
-					if (_event) {
-						possibleParents.set(_id, _event);
-					}
-					if (!_event) {
-						current.missingEvents.add(_id);
-						numMissing++;
-					}
-				}
-				if (numMissing == 0 && possibleParents.size > 0) {
-					let allTaggedEvents = new Set<string>();
-					for (let [_, e] of possibleParents) {
-						let splits = new tagSplits(e);
-						for (let id of splits.All()) {
-							allTaggedEvents.add(id);
-						}
-					}
-					let tagsThatAreNotInTaggedEvents = new Set<string>();
-					for (let id of possibleReplyTags) {
-						if (!allTaggedEvents.has(id)) {
-							tagsThatAreNotInTaggedEvents.add(id);
-						}
-					}
-					if (tagsThatAreNotInTaggedEvents.size == 1) {
-						//console.log("found mistagged reply")
-						tagsForEvent.replies = new Set([tagsThatAreNotInTaggedEvents][0]);
-					}
-					//if more than one in replies: find all the tagged events and see which tag among all these events is unique (the unique one is probably the reply, and the repeated one(s) are the root or further up in the thread)
-					//console.log('implement me');
-				} else {
-					//console.log(missing)
-					//todo: fetch missing events by ID
-				}
-			}
-			if (tagsForEvent.replies.size == 1) {
-				let existing = current.replies.get([...tagsForEvent.replies][0]);
-				if (!existing) {
-					existing = new Set();
-				}
-				existing.add(tagsForEvent.id);
-				current.replies.set([...tagsForEvent.replies][0], existing);
-			}
-		}
+		updateRepliesInPlace(current)
 		end()
 		return current;
 	});
@@ -294,26 +228,26 @@ let numberOfMissingEvents = derived(workerDataStore, ($wds) => {
 
  
 let q_missingEvents: QueryLike
-numberOfMissingEvents.subscribe((n) => {
-	let end = execTime("298 numberOfMissingEvents")
-	if (n > 0) {
-		const rb = new RequestBuilder('fetch-missing-events');
-		rb.withFilter().ids([...workerData.missingEvents])
-		rb.withOptions({ leaveOpen: false });
-		if (q_missingEvents) {q_missingEvents.cancel()}
-		q_missingEvents = sys.Query(rb);
-		q_missingEvents.on('event', (evs): void => {
-			let m = new Map<string, NostrEvent>()
-			for (let e of evs) {
-				m.set(e.id, e)
-			}
-			if (m.size > 0) {
-				updateReplies(m)
-			}
-		})
-	}
-	end()
-});
+// numberOfMissingEvents.subscribe((n) => {
+// 	let end = execTime("298 numberOfMissingEvents")
+// 	if (n > 0) {
+// 		const rb = new RequestBuilder('fetch-missing-events');
+// 		rb.withFilter().ids([...workerData.missingEvents])
+// 		rb.withOptions({ leaveOpen: false });
+// 		if (q_missingEvents) {q_missingEvents.cancel()}
+// 		q_missingEvents = sys.Query(rb);
+// 		q_missingEvents.on('event', (evs): void => {
+// 			let m = new Map<string, NostrEvent>()
+// 			for (let e of evs) {
+// 				m.set(e.id, e)
+// 			}
+// 			if (m.size > 0) {
+// 				updateReplies(m)
+// 			}
+// 		})
+// 	}
+// 	end()
+// });
 
 
 

@@ -2,17 +2,24 @@
 	import Button from '@/components/Button.svelte';
 	import ChatLayout from '@/components/ChatLayout.svelte';
 	import Coracle from '@/components/Coracle.svelte';
-	import { FrontendDataStore, viewed } from '@/snort_workers/main';
+	import MessageInput from '@/components/MessageInput.svelte';
+	import { PushEvent, FrontendDataStore as feds, viewed } from '@/snort_workers/main';
+	import { RequestBuilder, type QueryLike } from '@snort/system';
 	import type { NostrEvent } from 'nostr-tools';
 	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
 	import { derived, writable, type Writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
-	import MessageInput from '@/components/MessageInput.svelte';
+	import { System } from './snort';
+	import { updateRepliesInPlace } from '@/snort_workers/utils';
 
-	//take current threadparentID (or root) and create a derived store of all events. derive antoher one to pipe it through sorting/filtering store.
-	//
-	//export let FrontendDataStore: Writable<FrontendData>
+	let localEvents = writable(new Map<string, NostrEvent>())
+
+	let FrontendDataStore = derived([feds, localEvents], ([$feds, $localEvents]) => {
+		$feds.events = new Map([...$feds.events, ...$localEvents])
+		updateRepliesInPlace($feds)
+		return $feds;
+	});
 
 	let threadParentIDChain = writable(['root']);
 
@@ -35,11 +42,11 @@
 			let fullSet = new Map<string, NostrEvent>();
 			if (workerSet) {
 				for (let id of workerSet) {
-					let ev = $fds.rawEvents.get(id);
+					let ev = $fds.events.get(id);
 					if (ev) {
 						fullSet.set(id, ev);
 					} else {
-						throw new Error("this should not happen")
+						throw new Error('this should not happen');
 					}
 				}
 			}
@@ -53,9 +60,38 @@
 	let _stableShortlist: NostrEvent[] = [];
 	let stableShortList: Writable<NostrEvent[]> = writable(_stableShortlist);
 
-	threadParentID.subscribe(() => {
+	let q: QueryLike;
+
+	threadParentID.subscribe((parentID) => {
 		_stableShortlist = [];
 		stableShortList.set(_stableShortlist);
+		if (parentID != 'root' && parentID.length == 64) {
+			if (q) {
+				q.cancel();
+			}
+			(async () => {
+				// ID should be unique to the use case, this is important as all data fetched from this ID will be merged into the same NoteStore
+				const rb = new RequestBuilder(`get-${parentID}`);
+				rb.withFilter().tag('e', [parentID]).kinds([1]);
+				rb.withOptions({ leaveOpen: false });
+				q = System.Query(rb);
+				// basic usage using "onEvent", fired every 100ms
+				q.on('event', (evs) => {
+					if (evs.length > 0) {
+						console.log(77, evs);
+						localEvents.update(existing=>{
+							for (let e of evs) {
+								existing.set(e.id, e)
+							}
+							return existing
+						})
+						PushEvent(evs);
+					}
+
+					// something else..
+				});
+			})();
+		}
 	});
 
 	renderQueue.subscribe((q) => {});
@@ -121,7 +157,7 @@
 			{#if $threadParentID != 'root'}
 				<RenderKind1AsThreadHead
 					store={FrontendDataStore}
-					note={$FrontendDataStore.rawEvents.get($threadParentID)}
+					note={$FrontendDataStore.events.get($threadParentID)}
 				/>
 			{/if}
 			{#each $stableShortList as event, i (event.id)}<RenderKind1
@@ -149,11 +185,14 @@
 	<div slot="input" class="h-full"><MessageInput /></div>
 	<div slot="right">
 		<div class=" ml-2">
-			<h3>HUMBLE HORSE</h3>
+			<h3>HUMBLE HORSE</h3>events
 			<h6>Release Name: "Giddy Up"</h6>
-			Events in memory: {$FrontendDataStore.rawEvents.size}<br />
-			<Button onClick={()=>{console.log($threadParentID, $FrontendDataStore.replies.get($threadParentID))}}>Print root event data</Button>
-
+			Events in memory: {$FrontendDataStore.events.size}<br />
+			<Button
+				onClick={() => {
+					console.log($threadParentID, $FrontendDataStore.replies.get($threadParentID));
+				}}>Print root event data</Button
+			>
 		</div>
 	</div>
 </ChatLayout>

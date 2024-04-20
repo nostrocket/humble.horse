@@ -1,12 +1,12 @@
 import type { NostrEvent } from 'nostr-tools';
 
 export class Command {
-	command: 'start' | 'sub_to_pubkeys' | 'fetch_events' | 'push_event';
+	command: 'start' | 'sub_to_pubkeys' | 'fetch_events' | 'push_event' | 'ping';
 	pubkey?: string;
 	pubkeys?: string[];
 	events?: string[];
 	event?: NostrEvent[];
-	constructor(command: 'start' | 'sub_to_pubkeys' | 'fetch_events' | 'push_event') {
+	constructor(command: 'start' | 'sub_to_pubkeys' | 'fetch_events' | 'push_event' | 'ping') {
 		this.command = command;
 	}
 }
@@ -51,11 +51,13 @@ export class FrontendData {
 	replies: Map<string, Set<string>>
 	basePubkey: string;
 	baseFollows: Set<string>
-	rawEvents: Map<string, NostrEvent>;
+	events: Map<string, NostrEvent>;
+	missingEvents: Set<string>;
 	constructor() {
+		this.missingEvents = new Set()
 		this.roots = []
 		this.replies = new Map()
 		this.baseFollows = new Set()
-		this.rawEvents = new Map()
+		this.events = new Map()
 	}
 }
