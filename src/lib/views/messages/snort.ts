@@ -2,7 +2,7 @@ import { seedRelays } from "@/snort_workers/seed_relays";
 import { NostrSystem, type QueryLike } from "@snort/system";
 import { writable } from "svelte/store";
 
-export const System = new NostrSystem({});
+export const System = new NostrSystem({checkSigs: true});
 let started = false;
 
 export async function init() {

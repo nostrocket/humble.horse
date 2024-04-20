@@ -25,7 +25,7 @@ let count = 0
 async function start(pubkeys: string[]) {
 	return new Promise((resolve, reject) => {
 		const sys = new NostrSystem({
-			checkSigs: false //todo: check sigs JIT on rendering
+			checkSigs: true //todo: check sigs JIT on rendering
 			// automaticOutboxModel: true,
 			// buildFollowGraph: true,
 		});
