@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { FrontendDataStore } from '@/snort_workers/main';
 	import { kind0 } from '@/stores/user';
 	import { System } from '@/views/messages/snort';
 	import { RequestBuilder, type QueryLike } from '@snort/system';
@@ -54,9 +55,9 @@
 	});
 </script>
 <img
-class="w-8 h-8 rounded-full "
+class="w-8 h-8 rounded-full ring-2 {$FrontendDataStore.baseFollows.has(pubkey)?"ring-orange-500":"ring-gray-500"}"
 src={$profilePic}
-alt="profile pic"
+alt=""
 width="32px"
 height="32px"
 />
