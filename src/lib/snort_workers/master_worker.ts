@@ -4,6 +4,7 @@ import { NostrSystem, RequestBuilder, type QueryLike } from '@snort/system';
 import { derived, writable } from 'svelte/store';
 import { Command, FrontendData, WorkerData } from './types';
 import { execTime, followsFromKind3, getNostrEvent, tagSplits, updateRepliesInPlace } from './utils';
+import { BloomFilter } from 'bloomfilter';
 
 let workerData = new WorkerData();
 let workerDataStore = writable(workerData);
@@ -33,7 +34,7 @@ workerDataStore.subscribe((data) => {
 	for (let r of data.roots) {
 		if (!data.ourBloom.test(r)) {
 			let re = data.events.get(r);
-			if (!r) {
+			if (!re) {
 				throw new Error('missing event, this should not happen, bug!');
 			}
 			roots.push(re!);
@@ -57,6 +58,8 @@ workerDataStore.subscribe((data) => {
 	});
 	fed.replies = data.replies;
 	fed.events = data.events;
+	fed._bloomString = JSON.stringify([].slice.call(data.ourBloom.buckets))
+	fed.ourBloom = data.ourBloom;//new BloomFilter(JSON.parse(fed._bloomString), 32)
 	postMessage(fed);
 	end()
 });
@@ -125,13 +128,17 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 			let end = execTime("125 async start")
 			const rb = new RequestBuilder('fetch-initial-data');
 			let _pukeys: string[] = [];
+			let kinds = [3, 10002]
 			if (pubkeys) {
 				_pukeys = pubkeys;
 			}
 			if (pubkey) {
 				_pukeys.push(pubkey);
 			}
-			rb.withFilter().authors(_pukeys).kinds([3, 10002]);
+			if (pubkey && !pubkeys) {
+				kinds = [3, 10002, 1, 7]
+			}
+			rb.withFilter().authors(_pukeys).kinds(kinds);
 			rb.withOptions({ leaveOpen: false });
 
 			const _q = sys.Query(rb);

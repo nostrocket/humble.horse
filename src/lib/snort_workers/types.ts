@@ -49,8 +49,8 @@ export class WorkerData {
 	constructor(pubkey?: string) {
 		this.bloomSize = 0;
 		this.ourBloom = new BloomFilter(
-			32 * 256, // bits to allocate.
-			16 // number of hashes
+			64 * 256, // bits to allocate.
+			32 // number of hashes
 		);
 		this.missingEvents = new Set();
 		this.latestReplaceable = new Map();
@@ -69,9 +69,9 @@ export class FrontendData {
 	replies: Map<string, Set<string>>;
 	baseFollows: Set<string>;
 	events: Map<string, NostrEvent>;
-	//ourBloom: BloomFilter;
+	ourBloom: BloomFilter | undefined;
+	_bloomString: string | undefined;
 	constructor() {
-		//this.ourBloom = new BloomFilter()
 		this.roots = [];
 		this.replies = new Map();
 		this.baseFollows = new Set();

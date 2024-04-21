@@ -14,6 +14,8 @@
 	import { updateRepliesInPlace } from '@/snort_workers/utils';
 	import Login from '@/ndk/Login.svelte';
 	import { currentUser } from '@/ndk/ndk';
+	import Input from '@/components/ui/input/input.svelte';
+	import { BloomFilter } from 'bloomfilter';
 
 	let localEvents = writable(new Map<string, NostrEvent>());
 
@@ -149,6 +151,8 @@
 		}
 		return inSet.has(id);
 	}
+
+	let eventID:string;
 </script>
 <div class=" hidden">{$shortListLength}</div>
 <ChatLayout hideFaucet={$threadParentID != 'root'}>
@@ -198,8 +202,21 @@
 				onClick={() => {
 					console.log($threadParentID, $FrontendDataStore.replies.get($threadParentID));
 				}}>Print root event data</Button
-			>
-			{$currentUser?.pubkey}
+			><br />
+			LOGGED IN AS: {$currentUser?.pubkey} <br />
+			<Input bind:value={eventID} class="w-64" /><Button onClick={()=>{
+				//let bloom = new BloomFilter(JSON.parse($FrontendDataStore._bloomString), 32)
+				console.log($FrontendDataStore.ourBloom)
+				if ($FrontendDataStore.ourBloom) {
+					console.log(210)
+					console.log(eventID)
+					$FrontendDataStore.ourBloom.add("t")
+					let result = $FrontendDataStore.ourBloom.test(eventID)
+					console.log(213)
+					console.log(214, result)
+				}
+				}}>Check if event is in bloom filter</Button><br />
+			{$FrontendDataStore.ourBloom?.buckets.byteLength}
 		</div>
 	</div>
 </ChatLayout>

@@ -3,6 +3,8 @@ import type { TaggedNostrEvent } from '@snort/system';
 import type { Event } from 'nostr-tools';
 import { FrontendData, WorkerData } from './types';
 
+let debug = false
+
 export let execTime = (name: string): (() => void) => {
 	let start = performance.now();
 	let ended = false;
@@ -14,7 +16,10 @@ export let execTime = (name: string): (() => void) => {
 	return () => {
 		let end = performance.now();
 		ended = true;
-		console.log(name, end - start, 'ms');
+        if (debug) {
+            console.log(name, end - start, 'ms');
+        }
+		
 	};
 };
 
