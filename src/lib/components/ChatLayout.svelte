@@ -2,19 +2,16 @@
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import { toggleMode } from 'mode-watcher';
-	import { Home, Moon, QuestionMark, Sun } from 'radix-icons-svelte';
-	import LoginButton from './LoginButton.svelte';
-	import { Input } from './ui/input';
+	import { Home, Moon, Sun } from 'radix-icons-svelte';
 	import {
 		CircleQuestionSolid,
 		FaucetSolid,
 		GearSolid,
 		ListCheckSolid,
-		PodcastSolid,
-		ToolboxSolid
+		PodcastSolid
 	} from 'svelte-awesome-icons';
 	import Button from './Button.svelte';
-	import MessageInput from './MessageInput.svelte';
+	import LoginButton from './LoginButton.svelte';
 
 	export let hideFaucet = false;
 </script>
@@ -75,7 +72,7 @@
 	</div>
 	<div class="hidden flex-1 lg:block">
 		<div class="h-full flex-col">
-			<div class="h-full flex-1 bg-zinc-400 dark:bg-cyan-800"><slot name="right" /></div>
+			<div class="h-full flex-1 bg-slate-100 dark:bg-cyan-800"><slot name="right" /></div>
 		</div>
 	</div>
 </div>

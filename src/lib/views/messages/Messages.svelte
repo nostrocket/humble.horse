@@ -13,11 +13,11 @@
 	import { System } from './snort';
 	import { updateRepliesInPlace } from '@/snort_workers/utils';
 
-	let localEvents = writable(new Map<string, NostrEvent>())
+	let localEvents = writable(new Map<string, NostrEvent>());
 
 	let FrontendDataStore = derived([feds, localEvents], ([$feds, $localEvents]) => {
-		$feds.events = new Map([...$feds.events, ...$localEvents])
-		updateRepliesInPlace($feds)
+		$feds.events = new Map([...$feds.events, ...$localEvents]);
+		updateRepliesInPlace($feds);
 		return $feds;
 	});
 
@@ -78,13 +78,12 @@
 				// basic usage using "onEvent", fired every 100ms
 				q.on('event', (evs) => {
 					if (evs.length > 0) {
-						console.log(77, evs);
-						localEvents.update(existing=>{
+						localEvents.update((existing) => {
 							for (let e of evs) {
-								existing.set(e.id, e)
+								existing.set(e.id, e);
 							}
-							return existing
-						})
+							return existing;
+						});
 						PushEvent(evs);
 					}
 
@@ -114,12 +113,17 @@
 			if (needed > 0 || $parentID != 'root') {
 				let pushed = 0;
 				for (let e of $renderQ) {
-					if (needed > pushed || $parentID != 'root') {
-						if ((!$viewed.has(e.id) || $parentID != 'root') && !arrayContainsEvent(updated, e.id)) {
-							pushed++;
-							updated.push(e);
-							//console.log(84, pushed);
-							dirty = true;
+					if (e.kind == 1) {
+						if (needed > pushed || $parentID != 'root') {
+							if (
+								(!$viewed.has(e.id) || $parentID != 'root') &&
+								!arrayContainsEvent(updated, e.id)
+							) {
+								pushed++;
+								updated.push(e);
+								//console.log(84, pushed);
+								dirty = true;
+							}
 						}
 					}
 				}
@@ -185,7 +189,8 @@
 	<div slot="input" class="h-full"><MessageInput /></div>
 	<div slot="right">
 		<div class=" ml-2">
-			<h3>HUMBLE HORSE</h3>events
+			<h3>HUMBLE HORSE</h3>
+			events
 			<h6>Release Name: "Giddy Up"</h6>
 			Events in memory: {$FrontendDataStore.events.size}<br />
 			<Button

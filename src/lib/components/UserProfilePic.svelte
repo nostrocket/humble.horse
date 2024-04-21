@@ -8,6 +8,8 @@
 	import { derived } from 'svelte/store';
 
 	export let pubkey: string;
+
+
 	let q: QueryLike;
 
 	onMount(() => {
@@ -46,12 +48,10 @@
 				let json = JSON.parse(content);
                 if (json.picture && json.picture.length > 6) {
                     return json.picture
-                } else {
-                    return "https://assets.americanmeadows.com/media/catalog/product/h/o/horse-pasture-and-hay-seed-mix-horse.jpg"
-                }
+                } 
 			} catch {}
 		}
-		return name;
+        return "https://assets.americanmeadows.com/media/catalog/product/h/o/horse-pasture-and-hay-seed-mix-horse.jpg"
 	});
 </script>
 <img

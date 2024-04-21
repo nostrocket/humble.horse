@@ -28,15 +28,19 @@ async function connect() {
 workerDataStore.subscribe((data) => {
 	let end = execTime("28 workerDataStore.subscribe")
 	let fed = new FrontendData();
-	fed.basePubkey = data.ourPubkey();
-	fed.baseFollows = data._ourFollows;
+	fed._ourPubkey = data.ourPubkey();
+	fed.baseFollows = data.ourFollows;
 	let roots: NostrEvent[] = [];
 	for (let r of data.roots) {
-		let re = data.events.get(r);
-		if (!r) {
-			throw new Error('missing event, this should not happen, bug!');
+		if (!data.ourBloom.test(r)) {
+			let re = data.events.get(r);
+			if (!r) {
+				throw new Error('missing event, this should not happen, bug!');
+			}
+			roots.push(re!);
+		} else {
+			//console.log(42)
 		}
-		roots.push(re!);
 	}
 	fed.roots = roots.toSorted((a, b) => {
 		let a_replies = data.replies.get(a.id!);
@@ -59,7 +63,7 @@ workerDataStore.subscribe((data) => {
 });
 
 let lengthOfFollows = derived(workerDataStore, ($wds) => {
-	return $wds._ourFollows.size;
+	return $wds.ourFollows.size;
 });
 
 
@@ -69,7 +73,7 @@ lengthOfFollows.subscribe((x) => {
 	console.log('follows updated');
 	if (x > 0) {
 		const rb = new RequestBuilder('sub-to-follows');
-		rb.withFilter().authors([...workerData._ourFollows]).kinds([1])
+		rb.withFilter().authors([...workerData.ourFollows, workerData.ourPubkey()]).kinds([1, 7])
 		rb.withOptions({ leaveOpen: true });
 		if (q_subToFollows) {q_subToFollows.cancel()}
 		q_subToFollows = sys.Query(rb);
@@ -101,9 +105,7 @@ onmessage = (m: MessageEvent<Command>) => {
 				map.set(e.id, e)
 			}
 			if (map.size > 0) {
-				console.log(89, map)
 				updateReplies(map)
-				console.log(91)
 			}
 		}
 	}

@@ -15,7 +15,7 @@
 	$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
 </script>
 
-<div class="w-full pt-2">
+<div class="w-full pt-2 pl-2 pr-2">
 	<div class="grid">
 		<div class="flex gap-2">
 			<UserProfilePic pubkey={note.pubkey} />

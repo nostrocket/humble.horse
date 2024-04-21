@@ -1,3 +1,4 @@
+import { BloomFilter } from 'bloomfilter';
 import type { NostrEvent } from 'nostr-tools';
 
 export class Command {
@@ -17,47 +18,61 @@ export class WorkerData {
 	replies: Map<string, Set<string>>;
 	events: Map<string, NostrEvent>;
 	_ourPubkey: string | undefined;
-	_ourFollows: Set<string>;
+	ourFollows: Set<string>;
+	ourBloom: BloomFilter;
 	ourPubkey(): string {
 		return this._ourPubkey
 			? this._ourPubkey
 			: 'd91191e30e00444b942c0e82cad470b32af171764c2275bee0bd99377efd4075';
-	};
-    setOurPubkey(pubkey:string) {
-        if (pubkey.length != 64) {throw new Error("invalid pubkey")}
-        this._ourPubkey = pubkey
-    }
-    setOurFollows(follows:Set<string> | string[]):void {
-        this._ourFollows = new Set<string>([...follows].filter(v=>{
-            return v.length == 64
-        }))
-    }
-    latestReplaceable: Map<string, Map<string, NostrEvent>>
+	}
+	setOurPubkey(pubkey: string) {
+		if (pubkey.length != 64) {
+			throw new Error('invalid pubkey');
+		}
+		this._ourPubkey = pubkey;
+	}
+	setOurFollows(follows: Set<string> | string[]): void {
+		this.ourFollows = new Set<string>(
+			[...follows].filter((v) => {
+				return v.length == 64;
+			})
+		);
+	}
+	serializeBloom():string {
+		let a = [].slice.call(this.ourBloom.buckets)
+		let json = JSON.stringify(a)
+		return json
+	}
+	latestReplaceable: Map<string, Map<string, NostrEvent>>;
 	constructor(pubkey?: string) {
-		this.missingEvents = new Set()
-        this.latestReplaceable = new Map()
+		this.ourBloom = new BloomFilter(
+			32 * 256, // number of bits to allocate.
+			16 // number of hash functions.
+		);
+		this.missingEvents = new Set();
+		this.latestReplaceable = new Map();
 		this.events = new Map();
-        if (pubkey && pubkey.length == 64) {
-            this._ourPubkey = pubkey
-        }
-		this._ourFollows = new Set();
+		if (pubkey && pubkey.length == 64) {
+			this._ourPubkey = pubkey;
+		}
+		this.ourFollows = new Set();
 		this.roots = new Set();
-		this.replies = new Map()
+		this.replies = new Map();
 	}
 }
 
 export class FrontendData {
 	roots: NostrEvent[];
-	replies: Map<string, Set<string>>
-	basePubkey: string;
-	baseFollows: Set<string>
+	replies: Map<string, Set<string>>;
+	_ourPubkey: string;
+	baseFollows: Set<string>;
 	events: Map<string, NostrEvent>;
 	missingEvents: Set<string>;
 	constructor() {
-		this.missingEvents = new Set()
-		this.roots = []
-		this.replies = new Map()
-		this.baseFollows = new Set()
-		this.events = new Map()
+		this.missingEvents = new Set();
+		this.roots = [];
+		this.replies = new Map();
+		this.baseFollows = new Set();
+		this.events = new Map();
 	}
 }

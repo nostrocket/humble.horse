@@ -85,6 +85,7 @@ export class tagSplits {
 }
 
 export function updateRepliesInPlace(current:FrontendData | WorkerData) {
+    let end = execTime("updateRepliesInPlace")
     let printed = 0;
     let printedID = new Set<string>();
     for (let [id, e] of current.events) {
@@ -99,6 +100,16 @@ export function updateRepliesInPlace(current:FrontendData | WorkerData) {
             }
         }
         tagsForEvent.roots.forEach((r) => {
+            if (current instanceof FrontendData) {console.log(88, "FrontendData")}
+            if (current instanceof WorkerData) {
+                if (e.pubkey == current.ourPubkey()) {
+                    current.ourBloom.add(r)
+                }
+            }
+
+            if (current instanceof FrontendData) {
+                console.log(105, "frontend")
+            }
             if (!current.events.has(r)) {
                 current.missingEvents.add(r);
             } else {
@@ -158,5 +169,13 @@ export function updateRepliesInPlace(current:FrontendData | WorkerData) {
             existing.add(tagsForEvent.id);
             current.replies.set([...tagsForEvent.replies][0], existing);
         }
+        if (current instanceof WorkerData) {
+            if (e.pubkey == current.ourPubkey()) {
+                for (let id of tagsForEvent.All()) {
+                    current.ourBloom.add(id)
+                }
+            }
+        }
     }
+    end()
 }
