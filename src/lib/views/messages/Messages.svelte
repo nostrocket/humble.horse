@@ -12,6 +12,8 @@
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
 	import { System } from './snort';
 	import { updateRepliesInPlace } from '@/snort_workers/utils';
+	import Login from '@/ndk/Login.svelte';
+	import { currentUser } from '@/ndk/ndk';
 
 	let localEvents = writable(new Map<string, NostrEvent>());
 
@@ -148,7 +150,6 @@
 		return inSet.has(id);
 	}
 </script>
-
 <div class=" hidden">{$shortListLength}</div>
 <ChatLayout hideFaucet={$threadParentID != 'root'}>
 	<div slot="buttons">
@@ -198,6 +199,7 @@
 					console.log($threadParentID, $FrontendDataStore.replies.get($threadParentID));
 				}}>Print root event data</Button
 			>
+			{$currentUser?.pubkey}
 		</div>
 	</div>
 </ChatLayout>

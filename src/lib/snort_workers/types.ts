@@ -1,3 +1,4 @@
+
 import { BloomFilter } from 'bloomfilter';
 import type { NostrEvent } from 'nostr-tools';
 
@@ -20,6 +21,7 @@ export class WorkerData {
 	_ourPubkey: string | undefined;
 	ourFollows: Set<string>;
 	ourBloom: BloomFilter;
+	bloomSize: number;
 	ourPubkey(): string {
 		return this._ourPubkey
 			? this._ourPubkey
@@ -45,9 +47,10 @@ export class WorkerData {
 	}
 	latestReplaceable: Map<string, Map<string, NostrEvent>>;
 	constructor(pubkey?: string) {
+		this.bloomSize = 0;
 		this.ourBloom = new BloomFilter(
-			32 * 256, // number of bits to allocate.
-			16 // number of hash functions.
+			32 * 256, // bits to allocate.
+			16 // number of hashes
 		);
 		this.missingEvents = new Set();
 		this.latestReplaceable = new Map();
@@ -64,12 +67,11 @@ export class WorkerData {
 export class FrontendData {
 	roots: NostrEvent[];
 	replies: Map<string, Set<string>>;
-	_ourPubkey: string;
 	baseFollows: Set<string>;
 	events: Map<string, NostrEvent>;
-	missingEvents: Set<string>;
+	//ourBloom: BloomFilter;
 	constructor() {
-		this.missingEvents = new Set();
+		//this.ourBloom = new BloomFilter()
 		this.roots = [];
 		this.replies = new Map();
 		this.baseFollows = new Set();

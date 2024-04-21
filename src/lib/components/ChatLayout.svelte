@@ -12,6 +12,7 @@
 	} from 'svelte-awesome-icons';
 	import Button from './Button.svelte';
 	import LoginButton from './LoginButton.svelte';
+	import Login from '@/ndk/Login.svelte';
 
 	export let hideFaucet = false;
 </script>
@@ -59,7 +60,7 @@
 				>
 			</div>
 			<div class="mb-2 overflow-hidden place-items-center">
-				<Button><Home size={24} /></Button>
+				<Login />
 			</div>
 		</div>
 	</div>

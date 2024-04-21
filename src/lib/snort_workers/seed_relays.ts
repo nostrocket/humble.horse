@@ -122,6 +122,7 @@ export let seedRelays = Array.from(new Set([
   "wss://relayable.org/",]))
 
 export let short = [
+  "wss://nostr.mutinywallet.com/", // I mean, just for now I guess
   "wss://relay.nostr.band",
   "wss://relay.current.fyi",
   'wss://purplepag.es',

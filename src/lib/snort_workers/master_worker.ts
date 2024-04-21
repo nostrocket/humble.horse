@@ -28,7 +28,6 @@ async function connect() {
 workerDataStore.subscribe((data) => {
 	let end = execTime("28 workerDataStore.subscribe")
 	let fed = new FrontendData();
-	fed._ourPubkey = data.ourPubkey();
 	fed.baseFollows = data.ourFollows;
 	let roots: NostrEvent[] = [];
 	for (let r of data.roots) {
