@@ -13,9 +13,10 @@
 	import { System } from './snort';
 	import { updateRepliesInPlace } from '@/snort_workers/utils';
 	import Login from '@/ndk/Login.svelte';
-	import { currentUser } from '@/ndk/ndk';
+	import { currentUser, ndk } from '@/ndk/ndk';
 	import Input from '@/components/ui/input/input.svelte';
 	import { BloomFilter } from 'bloomfilter';
+	import { NDKEvent } from '@nostr-dev-kit/ndk';
 
 	let localEvents = writable(new Map<string, NostrEvent>());
 
@@ -152,8 +153,9 @@
 		return inSet.has(id);
 	}
 
-	let eventID:string;
+	let eventID: string;
 </script>
+
 <div class=" hidden">{$shortListLength}</div>
 <ChatLayout hideFaucet={$threadParentID != 'root'}>
 	<div slot="buttons">
@@ -195,36 +197,61 @@
 	<div slot="right">
 		<div class=" ml-2">
 			<h3>HUMBLE HORSE</h3>
-			events
 			<h6>Release Name: "Giddy Up"</h6>
+			<div class="mt-4"></div>
 			Events in memory: {$FrontendDataStore.events.size}<br />
 			<Button
 				onClick={() => {
 					console.log($threadParentID, $FrontendDataStore.replies.get($threadParentID));
 				}}>Print root event data</Button
 			><br />
-			LOGGED IN AS: {$currentUser?.pubkey} <br />
-			<Input bind:value={eventID} class="w-64" /><Button onClick={()=>{
-				let bloom = new BloomFilter(32 * 256, 32)
-				bloom.add("12345")
-				console.log(bloom.test("12345"))
-				let testbloom = new BloomFilter(JSON.parse($FrontendDataStore._bloomString), 32)
-				console.log(testbloom)
-				for (let e of $stableShortList) {
-					console.log(testbloom.test(e.id))
-				}
-				console.log(216, testbloom.test(eventID))
-				// console.log($FrontendDataStore.ourBloom)
-				// if ($FrontendDataStore.ourBloom) {
-				// 	console.log(210)
-				// 	console.log(eventID)
-				// 	$FrontendDataStore.ourBloom.add("t")
-				// 	let result = $FrontendDataStore.ourBloom.test(eventID)
-				// 	console.log(213)
-				// 	console.log(214, result)
-				// }
-				}}>Check if event is in bloom filter</Button><br />
-			{$FrontendDataStore.ourBloom?.buckets.byteLength}
+			<p>LOGGED IN AS: {$currentUser?.pubkey}</p>
+			<h3 class=" mt-4">Bloom Filter Metrics</h3>
+
+			Bits/Elem: {$FrontendDataStore.ourBloom?.buckets.BYTES_PER_ELEMENT * 8}<br />
+			Array Length (bits): {$FrontendDataStore.ourBloom?.buckets.byteLength * 8}<br />
+			<Input placeholder="event ID" class="mt-6 w-96" bind:value={eventID} /><Button
+				onClick={() => {
+					let testbloom = new BloomFilter(JSON.parse($FrontendDataStore._bloomString), 32);
+					for (let e of $stableShortList) {
+						console.log(testbloom.test(e.id));
+					}
+					console.log(216, testbloom.test(eventID));
+				}}
+				>Query bloom filter
+			</Button><br />
+			<Button onClick={()=>{
+				let bloom = $FrontendDataStore.ourBloom
+				console.log(1)
+				if (!bloom) {throw new Error("invalid bloom filter")}
+				if (!$currentUser) {throw new Error("invalid user")}
+				console.log(2)
+				let e = new NDKEvent($ndk)
+				console.log(3)
+				e.kind = 18100;
+				e.created_at = Math.floor(new Date().getTime() / 1000);
+				e.content = "Bloom filter test"
+				e.tags.push(["bloom", "32", JSON.stringify([].slice.call(bloom.buckets))])
+				e.author = $currentUser
+				console.log(4)
+				e.publish().then(r=>{
+					console.log(r)
+					console.log(e)
+				})
+				console.log(5)
+			}}>Publish bloom filter</Button>
+			<div>
+				<h3>TODO</h3>
+				<ul>
+					<li>Simple lndhub & cashu interface</li>
+					<li>Nostrocket problem tracker</li>
+					<li>Help thread</li>
+					<li>DVM requests</li>
+					<li>Latest stuff from highlighter</li>
+					<li>Tiks (highlights of podcasts/videos using ffmpeg segmented blossom server)</li>
+					<li></li>
+				</ul>
+			</div>
 		</div>
 	</div>
 </ChatLayout>
