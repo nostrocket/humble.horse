@@ -31,6 +31,7 @@ workerDataStore.subscribe((data) => {
 	let fed = new FrontendData();
 	fed.baseFollows = data.ourFollows;
 	let roots: NostrEvent[] = [];
+	let inBloom:string[] = []
 	for (let r of data.roots) {
 		if (!data.ourBloom.test(r)) {
 			let re = data.events.get(r);
@@ -39,6 +40,7 @@ workerDataStore.subscribe((data) => {
 			}
 			roots.push(re!);
 		} else {
+			inBloom.push(r)
 			//console.log(42)
 		}
 	}
@@ -59,6 +61,8 @@ workerDataStore.subscribe((data) => {
 	fed.replies = data.replies;
 	fed.events = data.events;
 	fed._bloomString = JSON.stringify([].slice.call(data.ourBloom.buckets))
+	let testbloom = new BloomFilter(JSON.parse(fed._bloomString), 32)
+	//console.log(data.ourBloom.test(inBloom[0]), testbloom.test(inBloom[0]))
 	fed.ourBloom = data.ourBloom;//new BloomFilter(JSON.parse(fed._bloomString), 32)
 	postMessage(fed);
 	end()

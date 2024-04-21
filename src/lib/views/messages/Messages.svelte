@@ -205,16 +205,24 @@
 			><br />
 			LOGGED IN AS: {$currentUser?.pubkey} <br />
 			<Input bind:value={eventID} class="w-64" /><Button onClick={()=>{
-				//let bloom = new BloomFilter(JSON.parse($FrontendDataStore._bloomString), 32)
-				console.log($FrontendDataStore.ourBloom)
-				if ($FrontendDataStore.ourBloom) {
-					console.log(210)
-					console.log(eventID)
-					$FrontendDataStore.ourBloom.add("t")
-					let result = $FrontendDataStore.ourBloom.test(eventID)
-					console.log(213)
-					console.log(214, result)
+				let bloom = new BloomFilter(32 * 256, 32)
+				bloom.add("12345")
+				console.log(bloom.test("12345"))
+				let testbloom = new BloomFilter(JSON.parse($FrontendDataStore._bloomString), 32)
+				console.log(testbloom)
+				for (let e of $stableShortList) {
+					console.log(testbloom.test(e.id))
 				}
+				console.log(216, testbloom.test(eventID))
+				// console.log($FrontendDataStore.ourBloom)
+				// if ($FrontendDataStore.ourBloom) {
+				// 	console.log(210)
+				// 	console.log(eventID)
+				// 	$FrontendDataStore.ourBloom.add("t")
+				// 	let result = $FrontendDataStore.ourBloom.test(eventID)
+				// 	console.log(213)
+				// 	console.log(214, result)
+				// }
 				}}>Check if event is in bloom filter</Button><br />
 			{$FrontendDataStore.ourBloom?.buckets.byteLength}
 		</div>

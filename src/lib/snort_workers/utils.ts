@@ -49,7 +49,7 @@ export class tagSplits {
 	unlabelled: Set<string>;
 	unknown: Set<string>;
 	All(): Set<string> {
-		return new Set(...this.roots, this.replies, this.mentions, this.unlabelled, this.unknown);
+		return new Set([...this.roots, ...this.replies, ...this.mentions, ...this.unlabelled, ...this.unknown]);
 	}
 	constructor(event: NostrEvent) {
 		this.rawEvent = event;
