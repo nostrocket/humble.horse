@@ -3,20 +3,19 @@
 	import ChatLayout from '@/components/ChatLayout.svelte';
 	import Coracle from '@/components/Coracle.svelte';
 	import MessageInput from '@/components/MessageInput.svelte';
+	import Input from '@/components/ui/input/input.svelte';
+	import { currentUser, ndk } from '@/ndk/ndk';
 	import { PushEvent, FrontendDataStore as feds, viewed } from '@/snort_workers/main';
+	import { updateRepliesInPlace } from '@/snort_workers/utils';
+	import { NDKEvent } from '@nostr-dev-kit/ndk';
 	import { RequestBuilder, type QueryLike } from '@snort/system';
+	import { BloomFilter } from 'bloomfilter';
 	import type { NostrEvent } from 'nostr-tools';
 	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
 	import { derived, writable, type Writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
 	import { System } from './snort';
-	import { updateRepliesInPlace } from '@/snort_workers/utils';
-	import Login from '@/ndk/Login.svelte';
-	import { currentUser, ndk } from '@/ndk/ndk';
-	import Input from '@/components/ui/input/input.svelte';
-	import { BloomFilter } from 'bloomfilter';
-	import { NDKEvent } from '@nostr-dev-kit/ndk';
 
 	let localEvents = writable(new Map<string, NostrEvent>());
 

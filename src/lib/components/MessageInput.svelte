@@ -1,4 +1,7 @@
 <script lang="js">
+	import { GhostSolid } from "svelte-awesome-icons";
+	import Button from "./Button.svelte";
+
 export let selected = true
 </script>
 <div class="flex items-center px-3 py-2 bg-zinc-300 dark:bg-cyan-900 {selected?"h-full":""}">
@@ -63,6 +66,8 @@ export let selected = true
 		class="resize-none block mx-4 p-2.5 w-full h-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 		placeholder="Start typing..."
 	></textarea>
+	<div class="flex flex-col">
+	<Button onClick={()=>{alert("ghost mode: implement me!")}}><GhostSolid /></Button>
 	<button
 		type="submit"
 		class=" {selected?"block":"hidden"} inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100 dark:text-blue-500 dark:hover:bg-gray-600"
@@ -80,4 +85,5 @@ export let selected = true
 		</svg>
 		<span class="sr-only">Send message</span>
 	</button>
+</div>
 </div>

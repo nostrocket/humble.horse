@@ -5,7 +5,7 @@
 	import { get } from 'svelte/store';
 	import { connect, currentUser, ndk } from './ndk';
 	import Button from '@/components/Button.svelte';
-	import { KeySolid } from 'svelte-awesome-icons';
+	import { KeySolid, UserAstronautSolid } from 'svelte-awesome-icons';
 
 	onMount(() => {
 		connect();
@@ -153,4 +153,4 @@
 	}
 </script>
 
-<Button onClick={()=>{loginNip07(true)}}><KeySolid /></Button>
+<Button onClick={()=>{loginNip07(true)}}><UserAstronautSolid /></Button>

@@ -7,6 +7,7 @@
 		CircleQuestionSolid,
 		FaucetSolid,
 		GearSolid,
+		GhostSolid,
 		ListCheckSolid,
 		PodcastSolid
 	} from 'svelte-awesome-icons';
@@ -60,6 +61,7 @@
 				>
 			</div>
 			<div class="mb-2 overflow-hidden place-items-center">
+				<Button onClick={()=>{alert("ghost mode: implement me!")}}><GhostSolid /></Button>
 				<Login />
 			</div>
 		</div>
