@@ -3,6 +3,7 @@ import type { TaggedNostrEvent } from '@snort/system';
 import type { Event } from 'nostr-tools';
 import { FrontendData, WorkerData } from './types';
 import { BloomFilter } from 'bloomfilter';
+import { Rake } from '@/rake/rake';
 
 let debug = false
 
@@ -198,4 +199,12 @@ export function updateRepliesInPlace(current: FrontendData | WorkerData) {
 		}
 	}
 	end();
+}
+
+function rakeIt(text: string) {
+
+const rakeInstance = new Rake();
+//const text = "Example text to extract keywords from, using the RAKE algorithm in TypeScript.";
+const keywords = rakeInstance.extractKeywords(text);
+console.log(keywords);
 }
