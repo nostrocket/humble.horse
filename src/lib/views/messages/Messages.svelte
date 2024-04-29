@@ -220,8 +220,15 @@
 				>Query bloom filter
 			</Button><br />
 			<Button onClick={()=>{
-				let bloom = $FrontendDataStore.ourBloom
-				console.log(1)
+				console.log(0)
+				let bloomString = $FrontendDataStore._bloomString
+				if (bloomString) {
+					let bloom = new BloomFilter(JSON.parse(bloomString), 32)
+					console.log(225, bloom)
+				for (let v of $viewed) {
+					bloom.add(v)
+				}
+				console.log(1, $viewed)
 				if (!bloom) {throw new Error("invalid bloom filter")}
 				if (!$currentUser) {throw new Error("invalid user")}
 				console.log(2)
@@ -238,6 +245,9 @@
 					console.log(e)
 				})
 				console.log(5)
+				}
+				
+				
 			}}>Publish bloom filter</Button>
 			<div>
 				<h3>TODO</h3>

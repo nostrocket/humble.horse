@@ -2,6 +2,7 @@ import { NDKEvent, type NostrEvent } from '@nostr-dev-kit/ndk';
 import type { TaggedNostrEvent } from '@snort/system';
 import type { Event } from 'nostr-tools';
 import { FrontendData, WorkerData } from './types';
+import { BloomFilter } from 'bloomfilter';
 
 let debug = false
 
@@ -12,7 +13,7 @@ export let execTime = (name: string): (() => void) => {
 		if (!ended) {
 			console.log(name, 'has timed out');
 		}
-	}, 1000);
+	}, 5000);
 	return () => {
 		let end = performance.now();
 		ended = true;
@@ -37,6 +38,20 @@ export function getNostrEvent(ev: TaggedNostrEvent): Event {
 
 export function followsFromKind3(event: Event): Set<string> {
 	return new Set(event.tags.filter((t) => t[0] == 'p').map((t) => t[1]));
+}
+
+export function bloomFromKind18100(event: Event): BloomFilter | undefined {
+	let eNDK = new NDKEvent(undefined, event)
+	let bloomString = eNDK.getMatchingTags("bloom")
+	if (bloomString.length == 1) {
+		//console.log(JSON.parse(bloomString[0][bloomString[0].length-1]))
+		//console.log(JSON.parse(bloomString[0]))
+		let b = new BloomFilter(JSON.parse(bloomString[0][bloomString[0].length-1]), 32)
+		if (b) {
+			return b
+		}
+	}
+	return undefined
 }
 
 export class tagSplits {
@@ -98,6 +113,7 @@ export function updateRepliesInPlace(current: FrontendData | WorkerData) {
 	let printed = 0;
 	let printedID = new Set<string>();
 	for (let [id, e] of current.events) {
+        if (e.kind == 18100) {console.log(e)}
 		if (current instanceof WorkerData) {
 			current.missingEvents.delete(id);
 		}

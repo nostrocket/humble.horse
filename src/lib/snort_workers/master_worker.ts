@@ -1,10 +1,16 @@
 import { seedRelays } from '@/snort_workers/seed_relays';
 import type { NostrEvent } from '@nostr-dev-kit/ndk';
 import { NostrSystem, RequestBuilder, type QueryLike } from '@snort/system';
+import { BloomFilter } from 'bloomfilter';
 import { derived, writable } from 'svelte/store';
 import { Command, FrontendData, WorkerData } from './types';
-import { execTime, followsFromKind3, getNostrEvent, tagSplits, updateRepliesInPlace } from './utils';
-import { BloomFilter } from 'bloomfilter';
+import {
+	bloomFromKind18100,
+	execTime,
+	followsFromKind3,
+	getNostrEvent,
+	updateRepliesInPlace
+} from './utils';
 
 let workerData = new WorkerData();
 let workerDataStore = writable(workerData);
@@ -15,23 +21,23 @@ const sys = new NostrSystem({
 	// buildFollowGraph: true,
 });
 
-let connecting = false
+let connecting = false;
 
 async function connect() {
-	let end = execTime("21, connect")
+	let end = execTime('21, connect');
 	if (!connecting) {
-		connecting = true
+		connecting = true;
 		seedRelays.forEach((r) => sys.ConnectToRelay(r, { read: true, write: false }));
 	}
-	end()
+	end();
 }
 
 workerDataStore.subscribe((data) => {
-	let end = execTime("28 workerDataStore.subscribe")
+	let end = execTime('28 workerDataStore.subscribe');
 	let fed = new FrontendData();
 	fed.baseFollows = data.ourFollows;
 	let roots: NostrEvent[] = [];
-	let inBloom:string[] = []
+	let inBloom: string[] = [];
 	for (let r of data.roots) {
 		if (!data.ourBloom.test(r)) {
 			let re = data.events.get(r);
@@ -40,7 +46,7 @@ workerDataStore.subscribe((data) => {
 			}
 			roots.push(re!);
 		} else {
-			inBloom.push(r)
+			inBloom.push(r);
 			//console.log(42)
 		}
 	}
@@ -60,79 +66,85 @@ workerDataStore.subscribe((data) => {
 	});
 	fed.replies = data.replies;
 	fed.events = data.events;
-	fed._bloomString = JSON.stringify([].slice.call(data.ourBloom.buckets))
-	let testbloom = new BloomFilter(JSON.parse(fed._bloomString), 32)
+	fed._bloomString = JSON.stringify([].slice.call(data.ourBloom.buckets));
+	let testbloom = new BloomFilter(JSON.parse(fed._bloomString), 32);
 	//console.log(data.ourBloom.test(inBloom[0]), testbloom.test(inBloom[0]))
-	fed.ourBloom = data.ourBloom;//new BloomFilter(JSON.parse(fed._bloomString), 32)
+	fed.ourBloom = data.ourBloom; //new BloomFilter(JSON.parse(fed._bloomString), 32)
 	postMessage(fed);
-	end()
+	end();
 });
 
 let lengthOfFollows = derived(workerDataStore, ($wds) => {
 	return $wds.ourFollows.size;
 });
 
-
-let q_subToFollows: QueryLike
+let q_subToFollows: QueryLike;
 lengthOfFollows.subscribe((x) => {
-	let end = execTime("69, lengthOfFollows.subscribe")
+	let end = execTime('69, lengthOfFollows.subscribe');
 	console.log('follows updated');
 	if (x > 0) {
 		const rb = new RequestBuilder('sub-to-follows');
-		rb.withFilter().authors([...workerData.ourFollows, workerData.ourPubkey()]).kinds([1, 7])
+		rb.withFilter()
+			.authors([...workerData.ourFollows, workerData.ourPubkey()])
+			.kinds([1, 7]);
 		rb.withOptions({ leaveOpen: true });
-		if (q_subToFollows) {q_subToFollows.cancel()}
+		if (q_subToFollows) {
+			q_subToFollows.cancel();
+		}
 		q_subToFollows = sys.Query(rb);
 		q_subToFollows.on('event', (evs): void => {
-			let m = new Map<string, NostrEvent>()
+			let m = new Map<string, NostrEvent>();
 			for (let e of evs) {
-				m.set(e.id, e)
+				m.set(e.id, e);
 			}
 			if (m.size > 0) {
-				updateReplies(m)
+				updateReplies(m);
 			}
-		})
+		});
 	}
-	end()
+	end();
 });
 
 //contract
 onmessage = (m: MessageEvent<Command>) => {
-	let end = execTime("88, onmessage")
-	if (m.data.command == "ping") {console.log(93, "ping")}
+	let end = execTime('88, onmessage');
+	if (m.data.command == 'ping') {
+		console.log(93, 'ping');
+	}
 	if (m.data.command == 'start') {
-		start(m.data.pubkey)
+		start(m.data.pubkey);
 	}
 	if (m.data.command == 'push_event') {
-		console.log(96)
-		let map = new Map<string, NostrEvent>()
+		console.log(96);
+		let map = new Map<string, NostrEvent>();
 		if (m.data.event) {
 			for (let e of m.data.event) {
-				map.set(e.id, e)
+				map.set(e.id, e);
 			}
 			if (map.size > 0) {
-				updateReplies(map)
+				updateReplies(map);
 			}
 		}
 	}
-	end()
+	end();
 };
 
+let replaceables = [3, 10002, 18100];
 //connect to seed relays, get our follows and relays.
 async function start(pubkey?: string, pubkeys?: string[]) {
-	connect()
+	connect();
 	return new Promise((resolve, reject) => {
 		if (pubkey) {
 			workerData.setOurPubkey(pubkey);
 		} else {
 			pubkey = workerData.ourPubkey();
 		}
-		
+
 		(async () => {
-			let end = execTime("125 async start")
+			let end = execTime('125 async start');
 			const rb = new RequestBuilder('fetch-initial-data');
 			let _pukeys: string[] = [];
-			let kinds = [3, 10002]
+			let kinds = [3, 10002];
 			if (pubkeys) {
 				_pukeys = pubkeys;
 			}
@@ -140,7 +152,7 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 				_pukeys.push(pubkey);
 			}
 			if (pubkey && !pubkeys) {
-				kinds = [3, 10002, 1, 7]
+				kinds = [3, 10002, 1, 7, 18100];
 			}
 			rb.withFilter().authors(_pukeys).kinds(kinds);
 			rb.withOptions({ leaveOpen: false });
@@ -149,24 +161,26 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 			_q.on('event', (evs): void => {
 				let updated = new Set<string>();
 				for (let e of evs) {
-					//todo: get all relays from all follows (3, 10002)
-					let eNt = getNostrEvent(e);
-					let latestForPubkey = workerData.latestReplaceable.get(e.pubkey);
-					if (!latestForPubkey) {
-						latestForPubkey = new Map();
-					}
-					let latestForDedupKey = latestForPubkey.get(e.kind.toString(10));
+					if (replaceables.includes(e.kind)) {
+						//todo: get all relays from all follows (3, 10002)
+						let eNt = getNostrEvent(e);
+						let latestForPubkey = workerData.latestReplaceable.get(e.pubkey);
+						if (!latestForPubkey) {
+							latestForPubkey = new Map();
+						}
+						let latestForDedupKey = latestForPubkey.get(e.kind.toString(10));
 
-					if (!latestForDedupKey) {
-						updated.add(eNt.pubkey);
-						latestForDedupKey = eNt;
+						if (!latestForDedupKey) {
+							updated.add(eNt.pubkey);
+							latestForDedupKey = eNt;
+						}
+						if (latestForDedupKey.created_at < eNt.created_at) {
+							updated.add(eNt.pubkey);
+							latestForDedupKey = eNt;
+						}
+						latestForPubkey.set(latestForDedupKey.kind.toString(10), latestForDedupKey);
+						workerData.latestReplaceable.set(e.pubkey, latestForPubkey);
 					}
-					if (latestForDedupKey.created_at < eNt.created_at) {
-						updated.add(eNt.pubkey);
-						latestForDedupKey = eNt;
-					}
-					latestForPubkey.set(latestForDedupKey.kind.toString(10), latestForDedupKey);
-					workerData.latestReplaceable.set(e.pubkey, latestForPubkey);
 				}
 				let dirty = false;
 				for (let pubkey of updated) {
@@ -179,6 +193,14 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 								dirty = true;
 							}
 						}
+						event = workerData.latestReplaceable.get(pubkey)?.get('18100');
+						if (event) {
+							let b = bloomFromKind18100(event)
+							if (b) {
+								workerData.ourBloom = b
+								dirty = true
+							}
+						}
 					}
 				}
 				if (dirty) {
@@ -186,7 +208,7 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 						return d;
 					});
 				}
-				end()
+				end();
 				//todo: get all relays from all follows (3, 10002)
 			});
 		})();
@@ -200,23 +222,20 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 
 //let permaSub: Worker | undefined = undefined;
 
-function updateReplies(newEvents?:Map<string, NostrEvent>) {
+function updateReplies(newEvents?: Map<string, NostrEvent>) {
 	workerDataStore.update((current) => {
-		let end = execTime("updateReplies")
+		let end = execTime('updateReplies');
 		if (newEvents) {
 			current.events = new Map([...newEvents, ...current.events]);
 		}
-		updateRepliesInPlace(current)
-		end()
+		updateRepliesInPlace(current);
+		end();
 		return current;
 	});
 }
 
-
-
 // async function PermaSub(pubkeys: string[]) {
 // 	if (pubkeys.length > 0) {
-
 
 // 		if (permaSub) {
 // 			permaSub.terminate();
@@ -237,9 +256,7 @@ let numberOfMissingEvents = derived(workerDataStore, ($wds) => {
 
 //let fetchEventsWorker: Worker | undefined = undefined;
 
-
- 
-let q_missingEvents: QueryLike
+let q_missingEvents: QueryLike;
 // numberOfMissingEvents.subscribe((n) => {
 // 	let end = execTime("298 numberOfMissingEvents")
 // 	if (n > 0) {
@@ -260,7 +277,5 @@ let q_missingEvents: QueryLike
 // 	}
 // 	end()
 // });
-
-
 
 export default {};
