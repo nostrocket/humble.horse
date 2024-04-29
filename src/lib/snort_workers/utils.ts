@@ -192,6 +192,20 @@ export function updateRepliesInPlace(current: FrontendData | WorkerData) {
 		if (current instanceof WorkerData) {
 			if (e.pubkey == current.ourPubkey()) {
 				for (let id of tagsForEvent.All()) {
+					let ev = current.events.get(id)
+					if (ev && ev.kind == 1) {
+						if (!current.rake.processedThisSession.has(ev.id)) {
+							current.rake.processedThisSession.add(ev.id);
+							for (let w of rakeIt(ev.content)) {
+								let existing = current.rake.words.get(w)
+								if (!existing) {
+									existing = 0
+								}
+								existing++
+								current.rake.words.set(w, existing)
+							}
+						}
+					}
 					current.ourBloom.add(id);
 					current.bloomSize++;
 				}
@@ -202,9 +216,6 @@ export function updateRepliesInPlace(current: FrontendData | WorkerData) {
 }
 
 function rakeIt(text: string) {
-
 const rakeInstance = new Rake();
-//const text = "Example text to extract keywords from, using the RAKE algorithm in TypeScript.";
-const keywords = rakeInstance.extractKeywords(text);
-console.log(keywords);
+return  rakeInstance.extractKeywords(text);
 }

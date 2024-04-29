@@ -1,21 +1,31 @@
 // Rapid Automatic Keyword Extraction (RAKE) https://patentimages.storage.googleapis.com/ae/f0/7f/bc099e8c71801e/US8131735.pdf
 
-import { stopWords } from "./stopwords";
+import { stopWords, stopWords2, stopWordsG } from "./stopwords";
+
+const urlRegex = /((https?):\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ;,./?%&=]*)?/gi;
+const nostr = /nostr:\S+/g;
+const integerRegex = /\b\d+\b/g;
 
 export class Rake {
     private stopWords: Set<string>;
 
     constructor() {
-        this.stopWords = new Set(stopWords);
+        this.stopWords = new Set (Array.from([...stopWords, ...stopWords2, ...stopWordsG], (x) => {return x.toLowerCase()}))
     }
 
     private isStopWord(word: string): boolean {
         return this.stopWords.has(word.toLowerCase());
     }
 
-    private splitPhrases(text: string): string[] {
+    public splitPhrases(text: string): string[] {
+        text = text.replace(urlRegex, ' ')
+        text = text.replace(nostr, ' ')
+        text = text.replace(integerRegex, ' ')
+
+
         const regex = /[^\p{L}\p{N}]+/gu;
-        return text.split(regex).filter(word => !this.isStopWord(word) && word.trim() !== '');
+        let _words = text.split(regex).filter(word => !this.isStopWord(word.toLowerCase()) && word.trim() !== '' && word.length > 3);
+        return Array.from(_words, (x) => { return x.toLowerCase()})
     }
 
     private calculateWordScores(phrases: string[]): Map<string, number> {
@@ -62,8 +72,3 @@ export class Rake {
             .map(entry => entry[0]);
     }
 }
-
-// Example usage:
-
-
-

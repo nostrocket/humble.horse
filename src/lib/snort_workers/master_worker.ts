@@ -50,16 +50,30 @@ workerDataStore.subscribe((data) => {
 			//console.log(42)
 		}
 	}
+	// fed.roots = roots.toSorted((a, b) => {
+	// 	let a_replies = data.replies.get(a.id!);
+	// 	let b_replies = data.replies.get(b.id!);
+	// 	if (a_replies && b_replies) {
+	// 		return b_replies.size - a_replies.size;
+	// 	}
+	// 	if (!a_replies && b_replies) {
+	// 		return 1;
+	// 	}
+	// 	if (!b_replies && a_replies) {
+	// 		return -1;
+	// 	}
+	// 	return 0;
+	// });
 	fed.roots = roots.toSorted((a, b) => {
-		let a_replies = data.replies.get(a.id!);
-		let b_replies = data.replies.get(b.id!);
-		if (a_replies && b_replies) {
-			return b_replies.size - a_replies.size;
+		let a_rakeHits = data.rake.hitcount(a.content)
+		let b_rakeHits = data.rake.hitcount(b.content)
+		if (a_rakeHits && b_rakeHits) {
+			return b_rakeHits - a_rakeHits;
 		}
-		if (!a_replies && b_replies) {
+		if (!a_rakeHits && b_rakeHits) {
 			return 1;
 		}
-		if (!b_replies && a_replies) {
+		if (!b_rakeHits && a_rakeHits) {
 			return -1;
 		}
 		return 0;
@@ -70,6 +84,7 @@ workerDataStore.subscribe((data) => {
 	let testbloom = new BloomFilter(JSON.parse(fed._bloomString), 32);
 	//console.log(data.ourBloom.test(inBloom[0]), testbloom.test(inBloom[0]))
 	fed.ourBloom = data.ourBloom; //new BloomFilter(JSON.parse(fed._bloomString), 32)
+	fed.keywords = workerData.rake.words
 	postMessage(fed);
 	end();
 });

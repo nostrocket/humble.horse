@@ -1,4 +1,5 @@
 
+import { Rake } from '@/rake/rake';
 import { BloomFilter } from 'bloomfilter';
 import type { NostrEvent } from 'nostr-tools';
 
@@ -13,7 +14,33 @@ export class Command {
 	}
 }
 
+
+export class RakeWords {
+	processedIDs: BloomFilter | undefined;
+	processedThisSession: Set<string>;
+	words: Map<string, number>;
+	public hitcount(input: string):number {
+		let r = new Rake()
+		let _words = r.splitPhrases(input)
+		let count = 0
+		for (let w of _words) {
+			if (this.words.get(w)) {
+				count++
+			}
+		}
+		return count
+	}
+
+	constructor() {
+		//todo construct from RAKE event if we find one
+		this.words = new Map()
+		this.processedIDs = undefined;
+		this.processedThisSession = new Set()
+	}
+}
+
 export class WorkerData {
+	rake: RakeWords;
 	missingEvents: Set<string>;
 	roots: Set<string>;
 	replies: Map<string, Set<string>>;
@@ -47,6 +74,7 @@ export class WorkerData {
 	}
 	latestReplaceable: Map<string, Map<string, NostrEvent>>;
 	constructor(pubkey?: string) {
+		this.rake = new RakeWords();
 		this.bloomSize = 0;
 		this.ourBloom = new BloomFilter(
 			64 * 256, // bits to allocate.
@@ -65,6 +93,7 @@ export class WorkerData {
 }
 
 export class FrontendData {
+	keywords: Map<string, number>;
 	roots: NostrEvent[];
 	replies: Map<string, Set<string>>;
 	baseFollows: Set<string>;
@@ -72,6 +101,7 @@ export class FrontendData {
 	ourBloom: BloomFilter | undefined;
 	_bloomString: string | undefined;
 	constructor() {
+		this.keywords = new Map()
 		this.roots = [];
 		this.replies = new Map();
 		this.baseFollows = new Set();

@@ -204,6 +204,9 @@
 					console.log($threadParentID, $FrontendDataStore.replies.get($threadParentID));
 				}}>Print root event data</Button
 			><br />
+			<Button onClick={()=>{
+				console.log($FrontendDataStore)
+			}}>Print FrontendDataStore</Button>
 			<p>LOGGED IN AS: {$currentUser?.pubkey}</p>
 			<h3 class=" mt-4">Bloom Filter Metrics</h3>
 
@@ -249,6 +252,9 @@
 				
 				
 			}}>Publish bloom filter</Button>
+			<br />
+			<h3>Your Keyword Ranks</h3>
+			{#each [...$FrontendDataStore.keywords].sort(([sa,a],[sb,b])=>{return b-a}) as [word, count]}{word}: {count} <br />{/each}
 			<div>
 				<h3>TODO</h3>
 				<ul>
