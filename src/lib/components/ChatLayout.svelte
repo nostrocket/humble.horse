@@ -75,7 +75,7 @@
 	</div>
 	<div class="hidden flex-1 lg:block">
 		<div class="h-full flex-col">
-			<div class="h-full flex-1 bg-slate-100 dark:bg-cyan-800"><slot name="right" /></div>
+			<div class="h-full flex-1 bg-slate-100 dark:bg-cyan-800 overflow-y-scroll"><slot name="right" /></div>
 		</div>
 	</div>
 </div>

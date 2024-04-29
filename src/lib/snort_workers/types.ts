@@ -24,8 +24,9 @@ export class RakeWords {
 		let _words = r.splitPhrases(input)
 		let count = 0
 		for (let w of _words) {
-			if (this.words.get(w)) {
-				count++
+			let val = this.words.get(w)
+			if (val) {
+				count = count + val
 			}
 		}
 		return count
@@ -94,15 +95,17 @@ export class WorkerData {
 
 export class FrontendData {
 	keywords: Map<string, number>;
-	roots: NostrEvent[];
+	rootsByKeyword: string[];
+	rootsByReplies: string[];
 	replies: Map<string, Set<string>>;
 	baseFollows: Set<string>;
 	events: Map<string, NostrEvent>;
 	ourBloom: BloomFilter | undefined;
 	_bloomString: string | undefined;
 	constructor() {
+		this.rootsByReplies = []
 		this.keywords = new Map()
-		this.roots = [];
+		this.rootsByKeyword = [];
 		this.replies = new Map();
 		this.baseFollows = new Set();
 		this.events = new Map();

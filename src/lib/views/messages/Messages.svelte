@@ -40,7 +40,22 @@
 
 	let renderQueue = derived([FrontendDataStore, threadParentID], ([$fds, $parentID]) => {
 		if ($parentID == 'root') {
-			return $fds.roots;
+			let spliced: string[] = []
+			let maxLength = Math.max($fds.rootsByKeyword.length, $fds.rootsByReplies.length);
+			for (let i = 0; i < maxLength; i++) {
+				if (i < $fds.rootsByKeyword.length) {
+					spliced.push($fds.rootsByKeyword[i])
+				}
+				if (i < $fds.rootsByReplies.length) {
+					spliced.push($fds.rootsByReplies[i])
+				}
+			}
+			spliced = [...new Set(spliced)]
+
+			let r = Array.from(spliced, (r)=>{return $fds.events.get(r)})
+			
+			//console.log(r.length)
+			return r
 		} else {
 			let workerSet = $fds.replies.get($parentID);
 			let fullSet = new Map<string, NostrEvent>();
@@ -204,9 +219,11 @@
 					console.log($threadParentID, $FrontendDataStore.replies.get($threadParentID));
 				}}>Print root event data</Button
 			><br />
-			<Button onClick={()=>{
-				console.log($FrontendDataStore)
-			}}>Print FrontendDataStore</Button>
+			<Button
+				onClick={() => {
+					console.log($FrontendDataStore);
+				}}>Print FrontendDataStore</Button
+			>
 			<p>LOGGED IN AS: {$currentUser?.pubkey}</p>
 			<h3 class=" mt-4">Bloom Filter Metrics</h3>
 
@@ -222,39 +239,38 @@
 				}}
 				>Query bloom filter
 			</Button><br />
-			<Button onClick={()=>{
-				console.log(0)
-				let bloomString = $FrontendDataStore._bloomString
-				if (bloomString) {
-					let bloom = new BloomFilter(JSON.parse(bloomString), 32)
-					console.log(225, bloom)
-				for (let v of $viewed) {
-					bloom.add(v)
-				}
-				console.log(1, $viewed)
-				if (!bloom) {throw new Error("invalid bloom filter")}
-				if (!$currentUser) {throw new Error("invalid user")}
-				console.log(2)
-				let e = new NDKEvent($ndk)
-				console.log(3)
-				e.kind = 18100;
-				e.created_at = Math.floor(new Date().getTime() / 1000);
-				e.content = "Bloom filter test"
-				e.tags.push(["bloom", "32", JSON.stringify([].slice.call(bloom.buckets))])
-				e.author = $currentUser
-				console.log(4)
-				e.publish().then(r=>{
-					console.log(r)
-					console.log(e)
-				})
-				console.log(5)
-				}
-				
-				
-			}}>Publish bloom filter</Button>
+			<Button
+				onClick={() => {
+					let bloomString = $FrontendDataStore._bloomString;
+					if (bloomString) {
+						let bloom = new BloomFilter(JSON.parse(bloomString), 32);
+						for (let v of $viewed) {
+							bloom.add(v);
+						}
+						if (!bloom) {
+							throw new Error('invalid bloom filter');
+						}
+						if (!$currentUser) {
+							throw new Error('invalid user');
+						}
+						let e = new NDKEvent($ndk);
+						e.kind = 18100;
+						e.created_at = Math.floor(new Date().getTime() / 1000);
+						e.content = 'Bloom filter test';
+						e.tags.push(['bloom', '32', JSON.stringify([].slice.call(bloom.buckets))]);
+						e.author = $currentUser;
+						e.publish().then((r) => {
+							console.log(r);
+							console.log(e);
+						});
+					}
+				}}>Publish bloom filter</Button
+			>
 			<br />
 			<h3>Your Keyword Ranks</h3>
-			{#each [...$FrontendDataStore.keywords].sort(([sa,a],[sb,b])=>{return b-a}) as [word, count]}{word}: {count} <br />{/each}
+			{#each [...$FrontendDataStore.keywords].sort(([sa, a], [sb, b]) => {
+				return b - a;
+			}) as [word, count]}{word}: {count} <br />{/each}
 			<div>
 				<h3>TODO</h3>
 				<ul>

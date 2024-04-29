@@ -50,21 +50,22 @@ workerDataStore.subscribe((data) => {
 			//console.log(42)
 		}
 	}
-	// fed.roots = roots.toSorted((a, b) => {
-	// 	let a_replies = data.replies.get(a.id!);
-	// 	let b_replies = data.replies.get(b.id!);
-	// 	if (a_replies && b_replies) {
-	// 		return b_replies.size - a_replies.size;
-	// 	}
-	// 	if (!a_replies && b_replies) {
-	// 		return 1;
-	// 	}
-	// 	if (!b_replies && a_replies) {
-	// 		return -1;
-	// 	}
-	// 	return 0;
-	// });
-	fed.roots = roots.toSorted((a, b) => {
+	let _rootsByReply = roots.toSorted((a, b) => {
+		let a_replies = data.replies.get(a.id!);
+		let b_replies = data.replies.get(b.id!);
+		if (a_replies && b_replies) {
+			return b_replies.size - a_replies.size;
+		}
+		if (!a_replies && b_replies) {
+			return 1;
+		}
+		if (!b_replies && a_replies) {
+			return -1;
+		}
+		return 0;
+	});
+	fed.rootsByReplies = Array.from(_rootsByReply, (r)=>{return r.id!})
+	let _roots = roots.toSorted((a, b) => {
 		let a_rakeHits = data.rake.hitcount(a.content)
 		let b_rakeHits = data.rake.hitcount(b.content)
 		if (a_rakeHits && b_rakeHits) {
@@ -77,7 +78,8 @@ workerDataStore.subscribe((data) => {
 			return -1;
 		}
 		return 0;
-	});
+	})//.filter((x)=>{return data.rake.hitcount(x.content) > 200});
+	fed.rootsByKeyword = Array.from(_roots, (r)=>{return r.id!})
 	fed.replies = data.replies;
 	fed.events = data.events;
 	fed._bloomString = JSON.stringify([].slice.call(data.ourBloom.buckets));
@@ -124,13 +126,13 @@ lengthOfFollows.subscribe((x) => {
 onmessage = (m: MessageEvent<Command>) => {
 	let end = execTime('88, onmessage');
 	if (m.data.command == 'ping') {
-		console.log(93, 'ping');
+		//console.log(93, 'ping');
 	}
 	if (m.data.command == 'start') {
 		start(m.data.pubkey);
 	}
 	if (m.data.command == 'push_event') {
-		console.log(96);
+		//console.log(96);
 		let map = new Map<string, NostrEvent>();
 		if (m.data.event) {
 			for (let e of m.data.event) {

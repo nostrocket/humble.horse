@@ -2,6 +2,9 @@
 
 import { stopWords, stopWords2, stopWordsG } from "./stopwords";
 
+import stemmer from '@stdlib/nlp-porter-stemmer'
+
+
 const urlRegex = /((https?):\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ;,./?%&=]*)?/gi;
 const nostr = /nostr:\S+/g;
 const integerRegex = /\b\d+\b/g;
@@ -10,7 +13,10 @@ export class Rake {
     private stopWords: Set<string>;
 
     constructor() {
-        this.stopWords = new Set (Array.from([...stopWords, ...stopWords2, ...stopWordsG], (x) => {return x.toLowerCase()}))
+        this.stopWords = new Set (Array.from([...stopWords, ...stopWords2, ...stopWordsG], (x) => {
+            let l = x.toLowerCase()
+            return stemmer(l)
+        }))
     }
 
     private isStopWord(word: string): boolean {
@@ -24,8 +30,10 @@ export class Rake {
 
 
         const regex = /[^\p{L}\p{N}]+/gu;
-        let _words = text.split(regex).filter(word => !this.isStopWord(word.toLowerCase()) && word.trim() !== '' && word.length > 3);
-        return Array.from(_words, (x) => { return x.toLowerCase()})
+        let _words = text.split(regex).filter(word => !this.isStopWord(word.toLowerCase()) && word.trim() !== '' && word.length > 3 && word.length < 18);
+        return Array.from(_words, (x) => {
+            let l = x.toLowerCase()
+            return stemmer(l)})
     }
 
     private calculateWordScores(phrases: string[]): Map<string, number> {

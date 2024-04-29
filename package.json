@@ -21,6 +21,7 @@
 		"@nostr-dev-kit/ndk-svelte": "^2.2.12",
 		"@nostr-dev-kit/ndk-svelte-components": "^2.2.13",
 		"@snort/system": "^1.2.12",
+		"@stdlib/nlp-porter-stemmer": "^0.2.1",
 		"@types/markdown-it": "^13.0.7",
 		"bits-ui": "^0.18.1",
 		"bloomfilter": "^0.0.18",
