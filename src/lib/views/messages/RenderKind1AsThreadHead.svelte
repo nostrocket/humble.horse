@@ -8,11 +8,11 @@
 	import { type Writable } from 'svelte/store';
 
 	export let note: NostrEvent;
-	export let store: Writable<FrontendData>;
+	//export let store: Writable<FrontendData>;
 
 	let top: HTMLDivElement;
 
-	$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
+	//$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
 </script>
 
 <div class="w-full pt-2 pl-2 pr-2">

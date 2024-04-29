@@ -4,7 +4,7 @@
 	import type { NostrEvent } from 'nostr-tools';
 	import Zap from './Zap.svelte';
 	import Reply from './Reply.svelte';
-	import { derived, type Writable } from 'svelte/store';
+	import { derived, type Readable, type Writable } from 'svelte/store';
 	import type { FrontendData } from '@/snort_workers/types';
 	import { inview } from 'svelte-inview';
 	import { onMount } from 'svelte';
@@ -14,7 +14,7 @@
 
 	export let note: NostrEvent;
 	export let onClickReply: () => void;
-	export let store: Writable<FrontendData>;
+	export let store: Readable<FrontendData>;
 
 	export let isTop: boolean = false;
 

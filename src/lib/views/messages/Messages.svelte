@@ -7,12 +7,13 @@
 	import { currentUser, ndk } from '@/ndk/ndk';
 	import { PushEvent, FrontendDataStore as feds, viewed } from '@/snort_workers/main';
 	import { updateRepliesInPlace } from '@/snort_workers/utils';
+	import { stableShortList } from '@/stores/shortlist';
 	import { NDKEvent } from '@nostr-dev-kit/ndk';
 	import { RequestBuilder, type QueryLike } from '@snort/system';
 	import { BloomFilter } from 'bloomfilter';
 	import type { NostrEvent } from 'nostr-tools';
 	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
-	import { derived, writable, type Writable } from 'svelte/store';
+	import { derived, writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
 	import { System } from './snort';
@@ -76,14 +77,12 @@
 		}
 	});
 
-	let _stableShortlist: NostrEvent[] = [];
-	let stableShortList: Writable<NostrEvent[]> = writable(_stableShortlist);
+
 
 	let q: QueryLike;
 
 	threadParentID.subscribe((parentID) => {
-		_stableShortlist = [];
-		stableShortList.set(_stableShortlist);
+		stableShortList.set([]);
 		if (parentID != 'root' && parentID.length == 64) {
 			if (q) {
 				q.cancel();
@@ -120,7 +119,7 @@
 		([$renderQ, $viewed, $parentID]) => {
 			let dirty = false;
 			let updated: NostrEvent[] = [];
-			for (let e of _stableShortlist) {
+			for (let e of $stableShortList) {
 				if (!$viewed.has(e.id) || $parentID != 'root') {
 					//console.log(72, e.id);
 					updated.push(e);
@@ -148,14 +147,13 @@
 				}
 			}
 			if (dirty) {
-				_stableShortlist = updated;
 				stableShortList.update((c) => {
 					c = updated;
 					return c;
 				});
 				//console.log(90);
 			}
-			return _stableShortlist.length;
+			return $stableShortList.length;
 		}
 	);
 
@@ -181,7 +179,6 @@
 		{#if $stableShortList.length > 0 || $threadParentID != 'root'}
 			{#if $threadParentID != 'root'}
 				<RenderKind1AsThreadHead
-					store={FrontendDataStore}
 					note={$FrontendDataStore.events.get($threadParentID)}
 				/>
 			{/if}
