@@ -44,6 +44,21 @@ workerDataStore.subscribe((data) => {
 			if (!re) {
 				throw new Error('missing event, this should not happen, bug!');
 			}
+			// let replies = data.replies.get(re.id);
+			// let weFollow = false;
+			// if (replies) {
+			// 	for (let r of replies) {
+			// 		let event = data.events.get(r);
+			// 		if (event) {
+			// 			if (data.ourFollows.has(event.pubkey)) {
+			// 				weFollow = true;
+			// 			}
+			// 		}
+			// 	}
+			// }
+			// if (weFollow) {
+			// 	roots.push(re!);
+			// }
 			roots.push(re!);
 		} else {
 			inBloom.push(r);
@@ -64,10 +79,12 @@ workerDataStore.subscribe((data) => {
 		}
 		return 0;
 	});
-	fed.rootsByReplies = Array.from(_rootsByReply, (r)=>{return r.id!})
+	fed.rootsByReplies = Array.from(_rootsByReply, (r) => {
+		return r.id!;
+	});
 	let _roots = roots.toSorted((a, b) => {
-		let a_rakeHits = data.rake.hitcount(a.content)
-		let b_rakeHits = data.rake.hitcount(b.content)
+		let a_rakeHits = data.rake.hitcount(a.content);
+		let b_rakeHits = data.rake.hitcount(b.content);
 		if (a_rakeHits && b_rakeHits) {
 			return b_rakeHits - a_rakeHits;
 		}
@@ -78,15 +95,17 @@ workerDataStore.subscribe((data) => {
 			return -1;
 		}
 		return 0;
-	})//.filter((x)=>{return data.rake.hitcount(x.content) > 200});
-	fed.rootsByKeyword = Array.from(_roots, (r)=>{return r.id!})
+	}); //.filter((x)=>{return data.rake.hitcount(x.content) > 200});
+	fed.rootsByKeyword = Array.from(_roots, (r) => {
+		return r.id!;
+	});
 	fed.replies = data.replies;
 	fed.events = data.events;
 	fed._bloomString = JSON.stringify([].slice.call(data.ourBloom.buckets));
 	let testbloom = new BloomFilter(JSON.parse(fed._bloomString), 32);
 	//console.log(data.ourBloom.test(inBloom[0]), testbloom.test(inBloom[0]))
 	fed.ourBloom = data.ourBloom; //new BloomFilter(JSON.parse(fed._bloomString), 32)
-	fed.keywords = workerData.rake.words
+	fed.keywords = workerData.rake.words;
 	postMessage(fed);
 	end();
 });
@@ -106,7 +125,7 @@ lengthOfFollows.subscribe((x) => {
 			.kinds([1, 7]);
 		rb.withOptions({ leaveOpen: true });
 		if (q_subToFollows) {
-			q_subToFollows.cancel();
+			//q_subToFollows.cancel();
 		}
 		q_subToFollows = sys.Query(rb);
 		q_subToFollows.on('event', (evs): void => {
@@ -131,6 +150,10 @@ onmessage = (m: MessageEvent<Command>) => {
 	if (m.data.command == 'start') {
 		start(m.data.pubkey);
 	}
+	if (m.data.command == 'set_master_pubkey') {
+		console.log(135, m.data.pubkey);
+		start(m.data.pubkey);
+	}
 	if (m.data.command == 'push_event') {
 		//console.log(96);
 		let map = new Map<string, NostrEvent>();
@@ -152,11 +175,17 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 	connect();
 	return new Promise((resolve, reject) => {
 		if (pubkey) {
-			workerData.setOurPubkey(pubkey);
+			if (workerData._ourPubkey != pubkey) {
+				workerData = new WorkerData()
+				workerDataStore.set(workerData)
+			}
+			workerDataStore.update((c) => {
+				c.setOurPubkey(pubkey!);
+				return c;
+			});
 		} else {
 			pubkey = workerData.ourPubkey();
 		}
-
 		(async () => {
 			let end = execTime('125 async start');
 			const rb = new RequestBuilder('fetch-initial-data');
@@ -212,10 +241,10 @@ async function start(pubkey?: string, pubkeys?: string[]) {
 						}
 						event = workerData.latestReplaceable.get(pubkey)?.get('18100');
 						if (event) {
-							let b = bloomFromKind18100(event)
+							let b = bloomFromKind18100(event);
 							if (b) {
-								workerData.ourBloom = b
-								dirty = true
+								workerData.ourBloom = b;
+								dirty = true;
 							}
 						}
 					}

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { currentPubkey } from "@/stores/user";
 	import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
 	import { Person } from "radix-icons-svelte";
 	import { onMount } from "svelte";
@@ -20,10 +19,10 @@
             const user = await signer.blockUntilReady();
 
             if (user) {
-                currentPubkey.update(existing=>{
-                    existing = user.pubkey
-                    return existing
-                })
+                // currentPubkey.update(existing=>{
+                //     existing = user.pubkey
+                //     return existing
+                // })
                 // $ndk.signer = signer;
                 // $ndk = $ndk
                 localStorage.setItem("signed-in", "true");

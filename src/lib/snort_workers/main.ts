@@ -10,7 +10,7 @@ export let viewed: Writable<Set<string>> = writable(new Set());
 
 let worker: Worker;
 
-export async function Init() {
+export async function Init(pubkey?:string) {
     let end = execTime("14 init worker")
     worker = new WorkerVite()
     end()
@@ -23,12 +23,26 @@ export async function Init() {
             });
         };;
         let end2 = execTime("21 worker.postMessage")
-		worker.postMessage(new Command("start")); //todo add pubkey
+        let cmd = new Command("start")
+        cmd.pubkey = pubkey
+		worker.postMessage(cmd);
         end2()
 }
 
 export function UpdatePubkey(pubkey:string) {
-
+    if (worker) {
+        worker.terminate()
+    }
+    Init(pubkey)
+    // let end = execTime("31 set pubkey")
+    // if (worker) {
+    //     let cmd = new Command("set_master_pubkey")
+    //     cmd.pubkey = pubkey
+    //     worker.postMessage(cmd)
+    // } else {
+    //     console.log("no worker started")
+    // }
+    //end()
 }
 
 export function PushEvent(e: NostrEvent[]) {
@@ -36,9 +50,9 @@ export function PushEvent(e: NostrEvent[]) {
     if (worker) {
         let cmd = new Command("push_event")
         cmd.event = e
-        worker.postMessage(new Command("ping"))
+        //worker.postMessage(new Command("ping"))
         worker.postMessage(cmd)
-        worker.postMessage(new Command("ping"))
+        //worker.postMessage(new Command("ping"))
     } else {
         console.log("no worker started")
     }

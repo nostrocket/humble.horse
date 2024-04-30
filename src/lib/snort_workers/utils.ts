@@ -114,7 +114,7 @@ export function updateRepliesInPlace(current: FrontendData | WorkerData) {
 	let printed = 0;
 	let printedID = new Set<string>();
 	for (let [id, e] of current.events) {
-        if (e.kind == 18100) {console.log(e)}
+        if (e.kind == 18100) {console.log(117, e)}
 		if (current instanceof WorkerData) {
 			current.missingEvents.delete(id);
 		}

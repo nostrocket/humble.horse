@@ -5,7 +5,7 @@
 	import MessageInput from '@/components/MessageInput.svelte';
 	import Input from '@/components/ui/input/input.svelte';
 	import { currentUser, ndk } from '@/ndk/ndk';
-	import { PushEvent, FrontendDataStore as feds, viewed } from '@/snort_workers/main';
+	import { PushEvent, UpdatePubkey, FrontendDataStore as feds, viewed } from '@/snort_workers/main';
 	import { updateRepliesInPlace } from '@/snort_workers/utils';
 	import { stableShortList } from '@/stores/shortlist';
 	import { NDKEvent } from '@nostr-dev-kit/ndk';
@@ -166,6 +166,13 @@
 	}
 
 	let eventID: string;
+
+	currentUser.subscribe(c=>{
+		if (c && c.pubkey) {
+			UpdatePubkey(c.pubkey)
+		}
+		
+	})
 </script>
 
 <div class=" hidden">{$shortListLength}</div>

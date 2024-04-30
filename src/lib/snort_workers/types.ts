@@ -4,12 +4,12 @@ import { BloomFilter } from 'bloomfilter';
 import type { NostrEvent } from 'nostr-tools';
 
 export class Command {
-	command: 'start' | 'sub_to_pubkeys' | 'fetch_events' | 'push_event' | 'ping';
+	command: 'start' | 'sub_to_pubkeys' | 'fetch_events' | 'push_event' | 'ping' | 'set_master_pubkey';
 	pubkey?: string;
 	pubkeys?: string[];
 	events?: string[];
 	event?: NostrEvent[];
-	constructor(command: 'start' | 'sub_to_pubkeys' | 'fetch_events' | 'push_event' | 'ping') {
+	constructor(command: 'start' | 'sub_to_pubkeys' | 'fetch_events' | 'push_event' | 'ping' | 'set_master_pubkey') {
 		this.command = command;
 	}
 }
@@ -53,12 +53,15 @@ export class WorkerData {
 	ourPubkey(): string {
 		return this._ourPubkey
 			? this._ourPubkey
-			: 'd91191e30e00444b942c0e82cad470b32af171764c2275bee0bd99377efd4075';
+			: 'd926c9849295e7d75a7eba75428e633ce66fd06f6c88ced88edc0950fa761484'//'d91191e30e00444b942c0e82cad470b32af171764c2275bee0bd99377efd4075';
 	}
 	setOurPubkey(pubkey: string) {
 		if (pubkey.length != 64) {
 			throw new Error('invalid pubkey');
 		}
+		// if (this._ourPubkey != pubkey) {
+		// 	this.reset(pubkey)
+		// }
 		this._ourPubkey = pubkey;
 	}
 	setOurFollows(follows: Set<string> | string[]): void {
@@ -72,6 +75,22 @@ export class WorkerData {
 		let a = [].slice.call(this.ourBloom.buckets)
 		let json = JSON.stringify(a)
 		return json
+	}
+
+	reset(pubkey:string):void {
+		this.bloomSize = 0;
+		this.ourBloom = new BloomFilter(
+			64 * 256, // bits to allocate.
+			32 // number of hashes
+		);
+		this.ourFollows = new Set()
+		this.roots = new Set()
+		this._ourPubkey =  pubkey
+		this.rake.processedThisSession = new Set()
+		this.rake.words = new Map()
+		this.roots = new Set()
+		this.replies = new Map()
+		this.missingEvents = new Set();
 	}
 	latestReplaceable: Map<string, Map<string, NostrEvent>>;
 	constructor(pubkey?: string) {
