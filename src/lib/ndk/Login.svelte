@@ -1,11 +1,12 @@
 <script lang="ts">
+	import Button from '@/components/Button.svelte';
 	import type NDK from '@nostr-dev-kit/ndk';
 	import { NDKNip07Signer, NDKNip46Signer, NDKPrivateKeySigner, NDKUser } from '@nostr-dev-kit/ndk';
 	import { onMount } from 'svelte';
+	import { UserAstronautSolid } from 'svelte-awesome-icons';
 	import { get } from 'svelte/store';
 	import { connect, currentUser, ndk } from './ndk';
-	import Button from '@/components/Button.svelte';
-	import { KeySolid, UserAstronautSolid } from 'svelte-awesome-icons';
+	import UserProfilePic from '@/components/UserProfilePic.svelte';
 
 	onMount(() => {
 		connect();
@@ -153,4 +154,4 @@
 	}
 </script>
 
-<Button onClick={()=>{loginNip07(true)}}><UserAstronautSolid /></Button>
+<Button onClick={()=>{loginNip07(true)}}>{#if !$currentUser}<UserAstronautSolid class=" fill-violet-700 dark:fill-orange-500" />{:else}<UserProfilePic pubkey={$currentUser.pubkey} />{/if}</Button>
