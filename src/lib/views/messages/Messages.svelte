@@ -265,10 +265,13 @@
 			>
 			<br />
 			<h3>Your Keyword Ranks</h3>
+			<div class="overflow-y-scroll max-h-48">
 			{#each [...$FrontendDataStore.keywords].sort(([sa, a], [sb, b]) => {
 				return b - a;
 			}) as [word, count]}{word}: {count} <br />{/each}
+			</div>
 			<div>
+				<br />
 				<h3>TODO</h3>
 				<ul>
 					<li>Simple lndhub & cashu interface</li>

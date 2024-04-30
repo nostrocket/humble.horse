@@ -48,9 +48,7 @@
 		formattedInput = formattedInput.replace(ytRegex, (url) => {
 			let ytID = extractYouTubeVideoID(url);
 			if (ytID) {
-				return `<iframe id="ytplayer" width="auto" height="300"
-  src="https://www.youtube.com/embed/${ytID}?autoplay=0"
-  frameborder="0"></iframe>`;
+				return `<iframe id="ytplayer" width="auto" height="300" src="https://www.youtube.com/embed/${ytID}?autoplay=0" frameborder="0"></iframe>`;
 			}
 			return '<br /><p>FAILED TO GET YT VIDEO</p><br />';
 		});
