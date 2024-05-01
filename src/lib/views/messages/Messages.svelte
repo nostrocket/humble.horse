@@ -7,7 +7,7 @@
 	import { currentUser, ndk } from '@/ndk/ndk';
 	import { PushEvent, UpdatePubkey, FrontendDataStore as feds, viewed } from '@/snort_workers/main';
 	import { updateRepliesInPlace } from '@/snort_workers/utils';
-	import { stableShortList } from '@/stores/shortlist';
+	import { stableShortList, threadParentID, threadParentIDChain } from '@/stores/shortlist';
 	import { NDKEvent } from '@nostr-dev-kit/ndk';
 	import { RequestBuilder, type QueryLike } from '@snort/system';
 	import { BloomFilter } from 'bloomfilter';
@@ -26,8 +26,6 @@
 		return $feds;
 	});
 
-	let threadParentIDChain = writable(['root']);
-
 	function pop() {
 		threadParentIDChain.update((existing) => {
 			existing.pop();
@@ -35,28 +33,26 @@
 		});
 	}
 
-	let threadParentID = derived(threadParentIDChain, ($tpi) => {
-		return $tpi[$tpi.length - 1];
-	});
-
 	let renderQueue = derived([FrontendDataStore, threadParentID], ([$fds, $parentID]) => {
 		if ($parentID == 'root') {
-			let spliced: string[] = []
+			let spliced: string[] = [];
 			let maxLength = Math.max($fds.rootsByKeyword.length, $fds.rootsByReplies.length);
 			for (let i = 0; i < maxLength; i++) {
 				if (i < $fds.rootsByKeyword.length) {
-					spliced.push($fds.rootsByKeyword[i])
+					spliced.push($fds.rootsByKeyword[i]);
 				}
 				if (i < $fds.rootsByReplies.length) {
-					spliced.push($fds.rootsByReplies[i])
+					spliced.push($fds.rootsByReplies[i]);
 				}
 			}
-			spliced = [...new Set(spliced)]
+			spliced = [...new Set(spliced)];
 
-			let r = Array.from(spliced, (r)=>{return $fds.events.get(r)})
-			
+			let r = Array.from(spliced, (r) => {
+				return $fds.events.get(r);
+			});
+
 			//console.log(r.length)
-			return r
+			return r;
 		} else {
 			let workerSet = $fds.replies.get($parentID);
 			let fullSet = new Map<string, NostrEvent>();
@@ -77,11 +73,14 @@
 		}
 	});
 
-
-
 	let q: QueryLike;
 
+	let firstRun = true;
+
 	threadParentID.subscribe((parentID) => {
+		if (firstRun) {
+			firstRun = false
+		} else {
 		stableShortList.set([]);
 		if (parentID != 'root' && parentID.length == 64) {
 			if (q) {
@@ -108,6 +107,7 @@
 					// something else..
 				});
 			})();
+		}
 		}
 	});
 
@@ -166,8 +166,6 @@
 	}
 
 	let eventID: string;
-
-
 </script>
 
 <div class=" hidden">{$shortListLength}</div>
@@ -180,9 +178,7 @@
 	<slot>
 		{#if $stableShortList.length > 0 || $threadParentID != 'root'}
 			{#if $threadParentID != 'root'}
-				<RenderKind1AsThreadHead
-					note={$FrontendDataStore.events.get($threadParentID)}
-				/>
+				<RenderKind1AsThreadHead note={$FrontendDataStore.events.get($threadParentID)} />
 			{/if}
 			{#each $stableShortList as event, i (event.id)}<RenderKind1
 					isTop={event.id == $stableShortList[0].id && $threadParentID == 'root'}
@@ -268,9 +264,9 @@
 			<br />
 			<h3>Your Keyword Ranks</h3>
 			<div class="overflow-y-scroll max-h-48">
-			{#each [...$FrontendDataStore.keywords].sort(([sa, a], [sb, b]) => {
-				return b - a;
-			}) as [word, count]}{word}: {count} <br />{/each}
+				{#each [...$FrontendDataStore.keywords].sort(([sa, a], [sb, b]) => {
+					return b - a;
+				}) as [word, count]}{word}: {count} <br />{/each}
 			</div>
 			<div>
 				<br />

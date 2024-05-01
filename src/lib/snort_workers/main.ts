@@ -30,7 +30,6 @@ export async function Init(pubkey?:string) {
 }
 
 export function UpdatePubkey(pubkey:string) {
-    console.log(33)
     if (worker) {
         worker.terminate()
     }
