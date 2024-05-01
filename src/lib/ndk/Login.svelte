@@ -16,6 +16,7 @@
 		} else {
 			if ((user && user.pubkey && user.pubkey != $currentUser?.pubkey) || !$currentUser) {
 				currentUser.update((cu) => {
+					console.log(19)
 					cu = user || undefined;
 					return cu;
 				});

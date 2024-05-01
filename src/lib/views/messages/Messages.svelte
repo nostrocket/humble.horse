@@ -167,13 +167,7 @@
 
 	let eventID: string;
 
-	currentUser.subscribe(c=>{
-		if (c && c.pubkey) {
-			stableShortList.set([]);
-			UpdatePubkey(c.pubkey)
-		}
-		
-	})
+
 </script>
 
 <div class=" hidden">{$shortListLength}</div>
