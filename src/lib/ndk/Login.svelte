@@ -1,16 +1,11 @@
 <script lang="ts">
 	import Button from '@/components/Button.svelte';
+	import UserProfilePic from '@/components/UserProfilePic.svelte';
 	import type NDK from '@nostr-dev-kit/ndk';
 	import { NDKNip07Signer, NDKNip46Signer, NDKPrivateKeySigner, NDKUser } from '@nostr-dev-kit/ndk';
-	import { onMount } from 'svelte';
 	import { UserAstronautSolid } from 'svelte-awesome-icons';
 	import { get } from 'svelte/store';
-	import { connect, currentUser, ndk } from './ndk';
-	import UserProfilePic from '@/components/UserProfilePic.svelte';
-
-	onMount(() => {
-		connect();
-	});
+	import { currentUser, ndk } from './ndk';
 
 	type LoginMethod = 'none' | 'pk' | 'nip07' | 'nip46';
 
@@ -19,20 +14,22 @@
 		if (!user && alertUser) {
 			alert('Please use a nostr signing extension such as GetAlby to login');
 		} else {
-			currentUser.update((cu) => {
-				cu = user || undefined;
-				return cu;
-			});
-			localStorage.setItem('nostr-key-method', 'nip07');
-			let cu = get(currentUser);
-			if (cu) {
-				localStorage.setItem('nostr-target-npub', cu.npub);
-				cu.fetchProfile();
-				let signer = new NDKNip07Signer();
-				ndk.update((current) => {
-					current.signer = signer;
-					return current;
+			if ((user && user.pubkey && user.pubkey != $currentUser?.pubkey) || !$currentUser) {
+				currentUser.update((cu) => {
+					cu = user || undefined;
+					return cu;
 				});
+				localStorage.setItem('nostr-key-method', 'nip07');
+				let cu = get(currentUser);
+				if (cu) {
+					localStorage.setItem('nostr-target-npub', cu.npub);
+					cu.fetchProfile();
+					let signer = new NDKNip07Signer();
+					ndk.update((current) => {
+						current.signer = signer;
+						return current;
+					});
+				}
 			}
 		}
 	}
@@ -154,4 +151,11 @@
 	}
 </script>
 
-<Button onClick={()=>{loginNip07(true)}}>{#if !$currentUser}<UserAstronautSolid class=" fill-violet-700 dark:fill-orange-500" />{:else}<UserProfilePic pubkey={$currentUser.pubkey} />{/if}</Button>
+<Button
+	onClick={() => {
+		loginNip07(true);
+	}}
+	>{#if !$currentUser}<UserAstronautSolid
+			class=" fill-violet-700 dark:fill-orange-500"
+		/>{:else}<UserProfilePic pubkey={$currentUser.pubkey} />{/if}</Button
+>

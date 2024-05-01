@@ -4,11 +4,13 @@
 	import '../app.css';
 	import { Init } from '@/snort_workers/main';
 	import { init } from '@/views/messages/snort';
+	import { connect } from '@/ndk/ndk';
 
 	onMount(() => {
 		console.log("layout mounted")
 		Init();
-		init()
+		init();
+		connect()
 	});
 </script>
 <ModeWatcher />

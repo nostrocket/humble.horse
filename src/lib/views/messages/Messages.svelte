@@ -169,6 +169,7 @@
 
 	currentUser.subscribe(c=>{
 		if (c && c.pubkey) {
+			stableShortList.set([]);
 			UpdatePubkey(c.pubkey)
 		}
 		

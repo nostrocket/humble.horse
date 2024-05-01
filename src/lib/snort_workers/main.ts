@@ -30,9 +30,11 @@ export async function Init(pubkey?:string) {
 }
 
 export function UpdatePubkey(pubkey:string) {
+    console.log(33)
     if (worker) {
         worker.terminate()
     }
+    FrontendDataStore.set(new FrontendData())
     Init(pubkey)
     // let end = execTime("31 set pubkey")
     // if (worker) {
