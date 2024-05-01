@@ -202,7 +202,7 @@
 			<Coracle />
 		{/if}
 	</slot>
-	<div slot="input" class="h-full"><MessageInput /></div>
+	<div slot="input"><MessageInput /></div>
 	<div slot="right">
 		<div class=" ml-2">
 			<h3>HUMBLE HORSE</h3>

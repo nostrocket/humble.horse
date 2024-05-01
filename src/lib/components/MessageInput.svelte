@@ -4,8 +4,8 @@
 
 export let selected = true
 </script>
-<div class="flex items-center float-end w-full h-full px-3 py-2 bg-zinc-300 dark:bg-cyan-900 {selected?"":""}">
-	<div class="{selected?"block":"hidden"}">
+<div class="flex items-center h-16 focus-within:h-full w-full px-3 py-2 bg-zinc-300 dark:bg-cyan-900 ">
+	<div class="">
 		<button
 			type="button"
 			class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
