@@ -70,7 +70,7 @@
 	<div class="flex-1">
 		<div class="h-full flex-col">
 			<div class="h-5/6 bg-white dark:bg-slate-900 overflow-x-hidden overflow-y-scroll no-scrollbar"><slot /></div>
-			<div class="h-1/6"><slot name="input" /></div>
+			<div class="h-1/6 contain-content pb-0"><slot name="input" /></div>
 		</div>
 	</div>
 	<div class="hidden flex-1 lg:block">
