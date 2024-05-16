@@ -17,6 +17,7 @@
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
 	import { System } from './snort';
+	import NDKSvelte from '@nostr-dev-kit/ndk-svelte';
 
 	let localEvents = writable(new Map<string, NostrEvent>());
 
@@ -79,35 +80,35 @@
 
 	threadParentID.subscribe((parentID) => {
 		if (firstRun) {
-			firstRun = false
+			firstRun = false;
 		} else {
-		stableShortList.set([]);
-		if (parentID != 'root' && parentID.length == 64) {
-			if (q) {
-				q.cancel();
-			}
-			(async () => {
-				// ID should be unique to the use case, this is important as all data fetched from this ID will be merged into the same NoteStore
-				const rb = new RequestBuilder(`get-${parentID}`);
-				rb.withFilter().tag('e', [parentID]).kinds([1]);
-				rb.withOptions({ leaveOpen: false });
-				q = System.Query(rb);
-				// basic usage using "onEvent", fired every 100ms
-				q.on('event', (evs) => {
-					if (evs.length > 0) {
-						localEvents.update((existing) => {
-							for (let e of evs) {
-								existing.set(e.id, e);
-							}
-							return existing;
-						});
-						PushEvent(evs);
-					}
+			stableShortList.set([]);
+			if (parentID != 'root' && parentID.length == 64) {
+				if (q) {
+					q.cancel();
+				}
+				(async () => {
+					// ID should be unique to the use case, this is important as all data fetched from this ID will be merged into the same NoteStore
+					const rb = new RequestBuilder(`get-${parentID}`);
+					rb.withFilter().tag('e', [parentID]).kinds([1]);
+					rb.withOptions({ leaveOpen: false });
+					q = System.Query(rb);
+					// basic usage using "onEvent", fired every 100ms
+					q.on('event', (evs) => {
+						if (evs.length > 0) {
+							localEvents.update((existing) => {
+								for (let e of evs) {
+									existing.set(e.id, e);
+								}
+								return existing;
+							});
+							PushEvent(evs);
+						}
 
-					// something else..
-				});
-			})();
-		}
+						// something else..
+					});
+				})();
+			}
 		}
 	});
 
@@ -260,6 +261,22 @@
 						});
 					}
 				}}>Publish bloom filter</Button
+			><br />
+			<Button
+				onClick={() => {
+					let _ndk = new NDKSvelte({
+						explicitRelayUrls: ['ws://127.0.0.1:6969']
+					});
+					console.log(270)
+					 _ndk.connect().then(()=>{
+						console.log(271)
+						$FrontendDataStore.events.forEach((e) => {
+						let en = new NDKEvent(_ndk, e);
+						en.publish()
+					});
+					 })
+
+				}}>Publish all events to local relay</Button
 			>
 			<br />
 			<h3>Your Keyword Ranks</h3>
