@@ -13,6 +13,7 @@
 	import { BloomFilter } from 'bloomfilter';
 	import type { NostrEvent } from 'nostr-tools';
 	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
+	import { onMount } from 'svelte';
 	import { derived, writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
@@ -167,6 +168,23 @@
 	}
 
 	let eventID: string;
+
+	onMount(() => {
+		const handleResize = () => {
+			if (window.visualViewport) {
+				document.body.style.height = `${window.visualViewport.height}px`;
+				console.log('resize', window.visualViewport.height);
+			}
+		};
+
+		window.visualViewport?.addEventListener('resize', handleResize);
+
+		handleResize();
+
+		return () => {
+			window.visualViewport?.removeEventListener('resize', handleResize);
+		};
+	});
 </script>
 
 <div class=" hidden">{$shortListLength}</div>
@@ -203,7 +221,7 @@
 			<Coracle />
 		{/if}
 	</slot>
-	<div slot="input"><MessageInput /></div>
+	<div slot="input" class="w-full content-end"><MessageInput /></div>
 	<div slot="right">
 		<div class=" ml-2">
 			<h3>HUMBLE HORSE</h3>
@@ -267,15 +285,14 @@
 					let _ndk = new NDKSvelte({
 						explicitRelayUrls: ['ws://127.0.0.1:6969']
 					});
-					console.log(270)
-					 _ndk.connect().then(()=>{
-						console.log(271)
+					console.log(270);
+					_ndk.connect().then(() => {
+						console.log(271);
 						$FrontendDataStore.events.forEach((e) => {
-						let en = new NDKEvent(_ndk, e);
-						en.publish()
+							let en = new NDKEvent(_ndk, e);
+							en.publish();
+						});
 					});
-					 })
-
 				}}>Publish all events to local relay</Button
 			>
 			<br />
