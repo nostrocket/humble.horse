@@ -203,7 +203,7 @@
 			<Coracle />
 		{/if}
 	</slot>
-	<div slot="input"><MessageInput /></div>
+	<div slot="input" class="w-full content-end"><MessageInput /></div>
 	<div slot="right">
 		<div class=" ml-2">
 			<h3>HUMBLE HORSE</h3>
@@ -267,15 +267,14 @@
 					let _ndk = new NDKSvelte({
 						explicitRelayUrls: ['ws://127.0.0.1:6969']
 					});
-					console.log(270)
-					 _ndk.connect().then(()=>{
-						console.log(271)
+					console.log(270);
+					_ndk.connect().then(() => {
+						console.log(271);
 						$FrontendDataStore.events.forEach((e) => {
-						let en = new NDKEvent(_ndk, e);
-						en.publish()
+							let en = new NDKEvent(_ndk, e);
+							en.publish();
+						});
 					});
-					 })
-
 				}}>Publish all events to local relay</Button
 			>
 			<br />
