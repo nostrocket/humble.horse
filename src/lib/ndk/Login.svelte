@@ -12,6 +12,7 @@
 	export async function loginNip07(alertUser?: boolean) {
 		const user = await login($ndk, undefined, 'nip07');
 		if (!user && alertUser) {
+			//todo: allow user to login with read only pubkey or create a new account. dfsk0j9j90f
 			alert('Please use a nostr signing extension such as GetAlby to login');
 		} else {
 			if ((user && user.pubkey && user.pubkey != $currentUser?.pubkey) || !$currentUser) {
