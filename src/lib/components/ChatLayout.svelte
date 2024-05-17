@@ -18,11 +18,11 @@
 	export let hideFaucet = false;
 </script>
 
-<div class="flex flex-row">
+<div class="flex flex-row h-full">
 	<!-- Icon Sidebar -->
 	<div class="w-12 flex-shrink-0 block bg-orange-500 dark:bg-cyan-950">
-		<div class="flex flex-col bg-layer-2 relative h-dvh">
-			<div class="flex flex-1 flex-col overflow-hidden place-items-center">
+		<div class="flex flex-col bg-layer-2 relative h-full">
+			<div class="flex flex-1 flex-col overflow-x-hidden overflow-y-scroll no-scrollbar sm:overflow-hidden place-items-center">
 				<slot name="buttons" />
 				{#if !hideFaucet}
 					<Button
@@ -72,7 +72,7 @@
 	</div>
 
 	<div class="flex-1">
-		<div class="h-dvh flex-col">
+		<div class="flex-col h-full">
 			<!-- CONTENT-->
 			<div
 				class="h-full relative z-10 bg-white dark:bg-slate-900 overflow-x-hidden overflow-y-scroll no-scrollbar"

@@ -13,6 +13,7 @@
 	import { BloomFilter } from 'bloomfilter';
 	import type { NostrEvent } from 'nostr-tools';
 	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
+	import { onMount } from 'svelte';
 	import { derived, writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
@@ -167,6 +168,23 @@
 	}
 
 	let eventID: string;
+
+	onMount(() => {
+		const handleResize = () => {
+			if (window.visualViewport) {
+				document.body.style.height = `${window.visualViewport.height}px`;
+				console.log('resize', window.visualViewport.height);
+			}
+		};
+
+		window.visualViewport?.addEventListener('resize', handleResize);
+
+		handleResize();
+
+		return () => {
+			window.visualViewport?.removeEventListener('resize', handleResize);
+		};
+	});
 </script>
 
 <div class=" hidden">{$shortListLength}</div>
