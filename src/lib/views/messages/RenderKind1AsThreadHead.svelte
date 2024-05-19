@@ -31,7 +31,16 @@
 					</div>
 					<div bind:this={top} class="justify-end items-center inline-flex">
 						<h6 class="text-gray-500 text-xs font-normal leading-4 py-1">
-							{new Date(note.created_at * 1000).toLocaleString()}{#if $viewed.has(note.id)}✓{/if}
+							{new Date(note.created_at * 1000).toLocaleString('en-US', {
+					                  weekday: 'short',
+					                  year: 'numeric',
+					                  month: 'short',
+					                  day: 'numeric',
+					                  hour: '2-digit',
+					                  minute: '2-digit',
+					                  hour12: true
+					                })}
+							{#if $viewed.has(note.id)}✓{/if}
 						</h6>
 					</div>
 				</div>
