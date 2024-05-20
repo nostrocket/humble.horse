@@ -13,37 +13,6 @@
 	let top: HTMLDivElement;
 
 	//$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
-	function formatTimeAgo(timestamp: number): string {
-    const currentTime = Date.now();
-    const secondsAgo = Math.floor((currentTime - timestamp) / 1000);
-
-    if (secondsAgo < 60) {
-      return `${secondsAgo} seconds ago`;
-    } else if (secondsAgo < 3600) {
-      const minutesAgo = Math.floor(secondsAgo / 60);
-      return `${minutesAgo} minute${minutesAgo === 1 ? '' : 's'} ago`;
-    } else if (secondsAgo < 86400) {
-      const hoursAgo = Math.floor(secondsAgo / 3600);
-      return `${hoursAgo} hour${hoursAgo === 1 ? '' : 's'} ago`;
-    } else if (secondsAgo < 604800) {
-      const daysAgo = Math.floor(secondsAgo / 86400);
-      return `${daysAgo} day${daysAgo === 1 ? '' : 's'} ago`;
-    } else {
-      const formattedDate = new Date(timestamp).toLocaleString('en-US', {
-        weekday: 'short',
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-      return formattedDate;
-    }
-  }	
-
-
-
 </script>
 
 <div class="w-full pt-2 pl-2 pr-2">
@@ -62,9 +31,7 @@
 					</div>
 					<div bind:this={top} class="justify-end items-center inline-flex">
 						<h6 class="text-gray-500 text-xs font-normal leading-4 py-1">
-								{formatTimeAgo(note.created_at * 1000)}
-
-							{#if $viewed.has(note.id)}✓{/if}
+							{new Date(note.created_at * 1000).toLocaleString()}{#if $viewed.has(note.id)}✓{/if}
 						</h6>
 					</div>
 				</div>
