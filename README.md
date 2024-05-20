@@ -1,3 +1,8 @@
+# Rules for pull requests
+1. A pull request MUST contain only ONE single commit.
+2. The commit message MUST state the problem that this commit / pull request is solving.
+
+
 # create-svelte
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
