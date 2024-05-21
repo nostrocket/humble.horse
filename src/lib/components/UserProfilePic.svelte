@@ -5,12 +5,19 @@
 	import { RequestBuilder, type QueryLike } from '@snort/system';
 	import { nip19 } from 'nostr-tools';
 	import { onDestroy, onMount } from 'svelte';
-	import { derived } from 'svelte/store';
+	import { derived, writable } from 'svelte/store';
 
 	export let pubkey: string;
 
 
 	let q: QueryLike;
+
+	let imageLoaded = false;
+	const profilePic = writable('');
+
+	function handleImageLoad() {
+		imageLoaded = true;
+	}
 
 	onMount(() => {
 		if (pubkey && pubkey.length == 64) {
@@ -41,18 +48,22 @@
 		}
 	});
 
-	let profilePic = derived(kind0, ($kind0) => {
-		let content = $kind0.get(pubkey)?.content;
-		if (content) {
-			try {
-				let json = JSON.parse(content);
-                if (json.picture && json.picture.length > 6) {
-                    return json.picture
-                } 
-			} catch {}
+$: {
+		const content = $kind0.get(pubkey)?.content;
+			let picture = '';
+			if (content) {
+				try {
+					const json = JSON.parse(content);
+				if (json.picture && json.picture.length > 6) {
+					picture = json.picture;
+				}
+			} catch {
+				profilePic.set("https://assets.americanmeadows.com/media/catalog/product/h/o/horse-pasture-and-hay-seed-mix-horse.jpg")
+			}
 		}
-        return "https://assets.americanmeadows.com/media/catalog/product/h/o/horse-pasture-and-hay-seed-mix-horse.jpg"
-	});
+			profilePic.set(picture);
+}
+
 </script>
 <img
 class="w-8 h-8 rounded-full ring-2 {$FrontendDataStore.baseFollows.has(pubkey)?"ring-orange-500":"ring-gray-500"}"
@@ -60,4 +71,5 @@ src={$profilePic}
 alt=""
 width="32px"
 height="32px"
+on:load={handleImageLoad}
 />
