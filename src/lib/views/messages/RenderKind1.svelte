@@ -11,6 +11,7 @@
 	import { viewed } from '@/snort_workers/main';
 	import UserDisplayName from '@/components/UserDisplayName.svelte';
 	import UserProfilePic from '@/components/UserProfilePic.svelte';
+	import { formatTimeAgo } from '../../utils'
 
 	export let note: NostrEvent;
 	export let onClickReply: () => void;
@@ -73,7 +74,7 @@ onMount(() => {
 						<h6 class="text-gray-500 text-xs font-normal leading-4 py-1"></h6>
 						<div class="justify-end items-center inline-flex">
 							<h6 class="text-gray-500 text-xs font-normal leading-4 py-1">
-								{new Date(note.created_at * 1000).toLocaleString()}
+								{formatTimeAgo(note.created_at * 1000)}
 								{#if $viewed.has(note.id)}✓{/if}
 							</h6>
 						</div>
