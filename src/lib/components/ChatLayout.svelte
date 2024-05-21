@@ -71,20 +71,20 @@
 		</div>
 	</div>
 
-	<div class="flex flex-col w-full">
-	   <!-- CONTENT -->
-	   <div class="flex-1 relative overflow-hidden">
-	     <div class="h-full bg-white dark:bg-slate-900 overflow-x-hidden overflow-y-scroll no-scrollbar z-10">
-	       <slot />
-	     </div>
-	   </div>
-	   <!-- MESSAGE BOX -->
-	   <div class="flex flex-row">
-	     <div class="relative w-full bg-white dark:bg-slate-900 z-20">
-	       <slot name="input" />
-	     </div>
-	   </div>
- 	</div>
+	<div class="flex-1">
+		<div class="flex-col h-full">
+			<!-- CONTENT-->
+			<div
+				class="h-full relative z-10 bg-white dark:bg-slate-900 overflow-x-hidden overflow-y-scroll no-scrollbar"
+			>
+				<slot />
+			</div>
+			<!-- MESSAGE BOX-->
+			<div class="relative w-full">
+				<div class="z-20 flex absolute inset-x-0 bottom-0 h-36"><slot name="input" /></div>
+			</div>
+		</div>
+	</div>
 	<div class="hidden flex-1 lg:block">
 		<div class="h-full flex-col">
 			<div class="h-full flex-1 bg-slate-100 dark:bg-cyan-800 overflow-y-scroll">
