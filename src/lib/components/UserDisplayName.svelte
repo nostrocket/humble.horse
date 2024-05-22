@@ -4,11 +4,12 @@
 	import { RequestBuilder, type QueryLike } from '@snort/system';
 	import { nip19 } from 'nostr-tools';
 	import { onDestroy, onMount } from 'svelte';
-	import { derived } from 'svelte/store';
+	import { derived, writable } from 'svelte/store';
 
 	export let pubkey: string;
 	let q: QueryLike;
 
+	const displayName = writable('');
 	onMount(() => {
 		if (pubkey && pubkey.length == 64) {
 			if (!$kind0.get(pubkey)) {
@@ -38,23 +39,23 @@
 		}
 	});
 
-	let displayName = derived(kind0, ($kind0) => {
-		let content = $kind0.get(pubkey)?.content;
-		let name = nip19.npubEncode(pubkey).substring(0, 12);
-		if (content) {
-			try {
-				let json = JSON.parse(content);
-				if (json.Name && json.Name.length > 0) {
-					name = json.Name;
-				} else if (json.display_name && json.display_name.length > 0) {
-					name = json.display_name;
-				} else if (json.name && json.name.length > 0) {
-					name = json.name;
-				}
-			} catch {}
+$: {
+	const content = $kind0.get(pubkey)?.content;
+	let name = nip19.npubEncode(pubkey).substring(0, 12);
+	if (content) {
+	try {
+		const json = JSON.parse(content);
+		if (json.Name && json.Name.length > 0) {
+		name = json.Name;
+		} else if (json.display_name && json.display_name.length > 0) {
+		name = json.display_name;
+		} else if (json.name && json.name.length > 0){
+		name = json.name;
 		}
-		return name;
-	});
+	} catch {}
+	}
+	displayName.set(name)
+}
 </script>
 
 {$displayName}

@@ -11,10 +11,13 @@
 	import { viewed } from '@/snort_workers/main';
 	import UserDisplayName from '@/components/UserDisplayName.svelte';
 	import UserProfilePic from '@/components/UserProfilePic.svelte';
-	import { formatTimeAgo } from '../../utils'
+	import { formatTimeAgo } from '@/utils'
+	import { currentPubkey } from '@/stores/user'
 
 	export let note: NostrEvent;
-	export let onClickReply: () => void;
+	export let onClickReply = () => {
+		currentPubkey.set(note.pubkey);
+	};
 	export let store: Readable<FrontendData>;
 
 	export let isTop: boolean = false;
@@ -41,7 +44,7 @@ onMount(() => {
 				alt="profile pic"
 			/> -->
 			<div class="grid">
-				<h5 class="text-gray-900 dark:text-orange-600 font-semibold leading-snug pb-1"><UserDisplayName pubkey={note.pubkey} /></h5> 
+				<h5 class="text-gray-900 dark:text-orange-600 font-semibold leading-snug pb-1"><UserDisplayName pubkey={note.pubkey} /></h5>
 				<div class="grid overflow-hidden mr-2 min-w-56">
 					<div
 						class="px-3.5 py-2 bg-gray-200 dark:bg-gray-700 rounded-e-xl rounded-es-xl flex flex-col gap-2"
