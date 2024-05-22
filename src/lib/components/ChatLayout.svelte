@@ -22,9 +22,7 @@
 	<!-- Icon Sidebar -->
 	<div class="w-12 flex-shrink-0 block bg-orange-500 dark:bg-cyan-950">
 		<div class="flex flex-col bg-layer-2 relative h-full">
-			<div
-				class="flex flex-1 flex-col overflow-x-hidden overflow-y-scroll no-scrollbar sm:overflow-hidden place-items-center"
-			>
+			<div class="flex flex-1 flex-col overflow-x-hidden overflow-y-scroll no-scrollbar sm:overflow-hidden place-items-center">
 				<slot name="buttons" />
 				{#if !hideFaucet}
 					<Button
