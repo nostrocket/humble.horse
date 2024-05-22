@@ -72,7 +72,7 @@
 	</div>
 
 	<div class="flex-1">
-		<div class="flex-col h-full">
+		<div class="flex flex-col h-full">
 			<!-- CONTENT-->
 			<div
 				class="h-full relative z-10 bg-white dark:bg-slate-900 overflow-x-hidden overflow-y-scroll no-scrollbar"
@@ -80,8 +80,8 @@
 				<slot />
 			</div>
 			<!-- MESSAGE BOX-->
-			<div class="relative w-full">
-				<div class="z-20 flex absolute inset-x-0 bottom-0 h-36"><slot name="input" /></div>
+			<div class="relative w-full h-fit">
+				<div class="z-20 flex"><slot name="input" /></div>
 			</div>
 		</div>
 	</div>
