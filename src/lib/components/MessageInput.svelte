@@ -4,7 +4,7 @@
 
 export let selected = true
 </script>
-<div class="flex items-center h-16 focus-within:h-full w-full px-3 py-2 bg-zinc-300 dark:bg-cyan-900 ">
+<div class="flex items-center h-16 focus-within:h-36 w-full px-3 py-2 bg-zinc-300 dark:bg-cyan-900 ">
 	<div class="">
 		<button
 			type="button"
