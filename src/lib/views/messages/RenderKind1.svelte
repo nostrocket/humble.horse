@@ -84,6 +84,7 @@ onMount(() => {
 		</div>
 	</div>
 </div>
+<!-- SCROLL OUT OF VIEW todo: change the location of this (in the DOM) so that we can use an animation to make it clear that the note has been "viewed" and can't be seen again -->
 <div
 	use:inview={{}}
 	on:inview_leave={(event) => {
