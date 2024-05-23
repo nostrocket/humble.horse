@@ -1,23 +1,20 @@
 <script lang="ts">
 	import RenderNoteContent from '@/components/RenderNoteContent.svelte';
-	import Marcus from './Marcus.svelte';
-	import type { NostrEvent } from 'nostr-tools';
-	import Zap from './Zap.svelte';
-	import Reply from './Reply.svelte';
-	import { derived, type Readable, type Writable } from 'svelte/store';
-	import type { FrontendData } from '@/snort_workers/types';
-	import { inview } from 'svelte-inview';
-	import { onMount } from 'svelte';
-	import { viewed } from '@/snort_workers/main';
 	import UserDisplayName from '@/components/UserDisplayName.svelte';
 	import UserProfilePic from '@/components/UserProfilePic.svelte';
-	import { formatTimeAgo } from '@/utils'
-	import { currentPubkey } from '@/stores/user'
+	import { viewed } from '@/snort_workers/main';
+	import type { FrontendData } from '@/snort_workers/types';
+	import { formatTimeAgo } from '@/utils';
+	import type { NostrEvent } from 'nostr-tools';
+	import { onMount } from 'svelte';
+	import { inview } from 'svelte-inview';
+	import { type Readable } from 'svelte/store';
+	import Marcus from './Marcus.svelte';
+	import Reply from './Reply.svelte';
+	import Zap from './Zap.svelte';
 
 	export let note: NostrEvent;
-	export let onClickReply = () => {
-		currentPubkey.set(note.pubkey);
-	};
+	export let onClickReply = () => {};
 	export let store: Readable<FrontendData>;
 
 	export let isTop: boolean = false;
