@@ -19,29 +19,54 @@
 
 	export let isTop: boolean = false;
 
-    let top: HTMLDivElement;
+	let top: HTMLDivElement;
+	let messageViewController: HTMLDivElement;
 
-onMount(() => {
-    if (isTop) {
-        (async () => {
-        top.scrollIntoView()
-    })();
-    }
-});
+	onMount(() => {
+		if (isTop) {
+			(async () => {
+				top.scrollIntoView({ behavior: 'smooth' });
+			})();
+		}
+	});
+
+	function handleMessageInviewLeave(event) {
+		if (event.detail.scrollDirection.vertical == 'up') {
+			// setTimeout(() => {
+			// 	viewed.update((v) => {
+			// 		v.add(note.id);
+			// 		console.log('viewed', note.id);
+			// 		return v;
+			// 	});
+			// }, 400);
+			// document.body.style.overflow = 'hidden';
+
+			top.style.transition = 'transform 400ms';
+			top.style.transform = 'translateX(-1200px)';
+
+			// // Re-enable scrolling after the animation
+			setTimeout(() => {
+				messageViewController.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}, 1500);
+		}
+	}
 
 	$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
 </script>
 
 <div bind:this={top} class="w-full pt-2 pl-2 pr-2">
 	<div class="grid">
-		<div class="flex gap-2"><UserProfilePic pubkey={note.pubkey} />
+		<div class="flex gap-2">
+			<UserProfilePic pubkey={note.pubkey} />
 			<!-- <img
 				class="w-8 h-8 rounded-full"
 				src="https://zenquotes.io/img/marcus-aurelius.jpg"
 				alt="profile pic"
 			/> -->
 			<div class="grid">
-				<h5 class="text-gray-900 dark:text-orange-600 font-semibold leading-snug pb-1"><UserDisplayName pubkey={note.pubkey} /></h5>
+				<h5 class="text-gray-900 dark:text-orange-600 font-semibold leading-snug pb-1">
+					<UserDisplayName pubkey={note.pubkey} />
+				</h5>
 				<div class="grid overflow-hidden mr-2 min-w-56">
 					<div
 						class="px-3.5 py-2 bg-gray-200 dark:bg-gray-700 rounded-e-xl rounded-es-xl flex flex-col gap-2"
@@ -49,7 +74,15 @@ onMount(() => {
 						<h5 class="text-sm font-normal text-gray-900 dark:text-white py-2">
 							<RenderNoteContent inputString={note.content} />
 						</h5>
-						<div class="flex justify-between">
+						<div id="buttons" class="relative flex justify-between">
+							<div
+								id="message-view-controller"
+								class="absolute h-0 top-3"
+								use:inview={{}}
+								on:inview_leave={(event) => {
+									handleMessageInviewLeave(event);
+								}}
+							/>
 							<div>
 								<Marcus
 									onclick={() => {
@@ -86,6 +119,8 @@ onMount(() => {
 </div>
 <!-- SCROLL OUT OF VIEW todo: change the location of this (in the DOM) so that we can use an animation to make it clear that the note has been "viewed" and can't be seen again -->
 <div
+	bind:this={messageViewController}
+	id="view-controller"
 	use:inview={{}}
 	on:inview_leave={(event) => {
 		if (event.detail.scrollDirection.vertical == 'up') {
@@ -95,4 +130,4 @@ onMount(() => {
 			});
 		}
 	}}
-></div>
+/>

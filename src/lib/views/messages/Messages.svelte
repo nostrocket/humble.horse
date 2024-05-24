@@ -185,6 +185,8 @@
 			window.visualViewport?.removeEventListener('resize', handleResize);
 		};
 	});
+
+	$: console.log($stableShortList);
 </script>
 
 <div class=" hidden">{$shortListLength}</div>
