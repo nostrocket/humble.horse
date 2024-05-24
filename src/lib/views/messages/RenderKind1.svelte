@@ -12,6 +12,7 @@
 	import Marcus from './Marcus.svelte';
 	import Reply from './Reply.svelte';
 	import Zap from './Zap.svelte';
+	import { threadParentID } from '@/stores/shortlist';
 
 	export let note: NostrEvent;
 	export let onClickReply = () => {};
@@ -21,6 +22,7 @@
 
 	let top: HTMLDivElement;
 	let messageViewController: HTMLDivElement;
+	let hiddenMessageNotice: HTMLSpanElement;
 
 	onMount(() => {
 		if (isTop) {
@@ -31,22 +33,13 @@
 	});
 
 	function handleMessageInviewLeave(event) {
-		if (event.detail.scrollDirection.vertical == 'up') {
-			// setTimeout(() => {
-			// 	viewed.update((v) => {
-			// 		v.add(note.id);
-			// 		console.log('viewed', note.id);
-			// 		return v;
-			// 	});
-			// }, 400);
-			// document.body.style.overflow = 'hidden';
-
+		if (event.detail.scrollDirection.vertical == 'up' && $threadParentID == 'root') {
 			top.style.transition = 'transform 400ms';
 			top.style.transform = 'translateX(-1200px)';
+			hiddenMessageNotice.style.display = 'block';
 
-			// // Re-enable scrolling after the animation
 			setTimeout(() => {
-				messageViewController.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				messageViewController.scrollIntoView({ behavior: 'smooth' });
 			}, 1500);
 		}
 	}
@@ -54,6 +47,11 @@
 	$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
 </script>
 
+<span
+	bind:this={hiddenMessageNotice}
+	class="hidden text-white/50 text-xs mx-auto text-center h-0 absolute top-4 left-0 right-0"
+	>Previous messages are hidden from view. Refresh the page to view it again.</span
+>
 <div bind:this={top} class="w-full pt-2 pl-2 pr-2">
 	<div class="grid">
 		<div class="flex gap-2">
