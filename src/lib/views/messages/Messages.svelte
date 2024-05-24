@@ -173,7 +173,6 @@
 		const handleResize = () => {
 			if (window.visualViewport) {
 				document.body.style.height = `${window.visualViewport.height}px`;
-				console.log('resize', window.visualViewport.height);
 			}
 		};
 
@@ -185,8 +184,6 @@
 			window.visualViewport?.removeEventListener('resize', handleResize);
 		};
 	});
-
-	$: console.log($stableShortList);
 </script>
 
 <div class=" hidden">{$shortListLength}</div>
