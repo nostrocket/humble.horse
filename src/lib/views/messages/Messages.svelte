@@ -173,7 +173,6 @@
 		const handleResize = () => {
 			if (window.visualViewport) {
 				document.body.style.height = `${window.visualViewport.height}px`;
-				console.log('resize', window.visualViewport.height);
 			}
 		};
 
