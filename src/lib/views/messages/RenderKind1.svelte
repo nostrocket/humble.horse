@@ -22,7 +22,16 @@
 
 	let top: HTMLDivElement;
 	let messageViewController: HTMLDivElement;
-	let hiddenMessageNotice: HTMLSpanElement;
+
+	function updateDistance() {
+		const rect = messageViewController.getBoundingClientRect();
+		if (isTop && rect.top < 120 && $threadParentID === 'root') {
+			const marginLeft = Math.max(-240, (rect.top - 120) * 2);
+			top.style.marginLeft = `${marginLeft}px`;
+		} else {
+			top.style.marginLeft = '0px';
+		}
+	}
 
 	onMount(() => {
 		if (isTop) {
@@ -30,28 +39,23 @@
 				top.scrollIntoView({ behavior: 'smooth' });
 			})();
 		}
-	});
 
-	function handleMessageInviewLeave(event) {
-		if (event.detail.scrollDirection.vertical == 'up' && $threadParentID == 'root') {
-			top.style.transition = 'transform 400ms';
-			top.style.transform = 'translateX(-1200px)';
-			hiddenMessageNotice.style.display = 'block';
-
-			setTimeout(() => {
-				messageViewController.scrollIntoView({ behavior: 'smooth' });
-			}, 1500);
+		const contentDiv = document.getElementById('content');
+		if (contentDiv) {
+			contentDiv.addEventListener('scroll', updateDistance);
+			updateDistance();
 		}
-	}
+
+		return () => {
+			if (contentDiv) {
+				contentDiv.removeEventListener('scroll', updateDistance);
+			}
+		};
+	});
 
 	$: childrenCount = $store?.replies.get(note.id) ? $store.replies.get(note.id)!.size : 0;
 </script>
 
-<span
-	bind:this={hiddenMessageNotice}
-	class="hidden text-white/50 text-xs mx-auto text-center h-0 absolute top-4 left-0 right-0"
-	>Previous messages are hidden from view. Refresh the page to view it again.</span
->
 <div bind:this={top} class="w-full pt-2 pl-2 pr-2">
 	<div class="grid">
 		<div class="flex gap-2">
@@ -73,14 +77,6 @@
 							<RenderNoteContent inputString={note.content} />
 						</h5>
 						<div id="buttons" class="relative flex justify-between">
-							<div
-								id="message-view-controller"
-								class="absolute h-0 top-3"
-								use:inview={{}}
-								on:inview_leave={(event) => {
-									handleMessageInviewLeave(event);
-								}}
-							/>
 							<div>
 								<Marcus
 									onclick={() => {
@@ -128,4 +124,4 @@
 			});
 		}
 	}}
-/>
+></div>
