@@ -37,10 +37,23 @@
 					</Button>
 				{/if}
 
-				<Button onClick={()=>{alert("todo: implement todo bookmarks")}}><ListCheckSolid /></Button>
-				<Button><CircleQuestionSolid /></Button>
+				<Button
+					onClick={() => {
+						alert('todo: implement todo bookmarks');
+					}}><ListCheckSolid /></Button
+				>
+				<Button
+					onClick={() => {
+						goto(`${base}/help`);
+					}}><CircleQuestionSolid /></Button
+				>
 				<Button><GearSolid /></Button>
-				<Button onClick={()=>{console.log("43");window.location.href=`https://github.com/nostrocket/humble.horse/`}}><CodePullRequestSolid /></Button>
+				<Button
+					onClick={() => {
+						console.log('43');
+						window.location.href = `https://github.com/nostrocket/humble.horse/`;
+					}}><CodePullRequestSolid /></Button
+				>
 
 				<Button onClick={toggleMode}>
 					<Moon
@@ -54,7 +67,11 @@
 
 				<!-- <Button onClick={()=>{goto(`${base}/debug`)}}><ToolboxSolid /></Button
 					> -->
-				<Button onClick={()=>{alert("implement podcast tiks")}}><PodcastSolid /></Button>
+				<Button
+					onClick={() => {
+						alert('implement podcast tiks');
+					}}><PodcastSolid /></Button
+				>
 				<Button
 					notifs={0}
 					onClick={() => {
