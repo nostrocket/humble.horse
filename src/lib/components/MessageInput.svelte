@@ -1,10 +1,38 @@
-<script lang="js">
-	import { GhostSolid } from "svelte-awesome-icons";
-	import Button from "./Button.svelte";
+<script lang="ts">
+	import { GhostSolid } from 'svelte-awesome-icons';
+	import Button from './Button.svelte';
+	import { currentUser, ndk } from '@/ndk/ndk';
+	import { NDKEvent, type NDKTag } from '@nostr-dev-kit/ndk';
+	import { Textarea } from './ui/textarea';
 
-export let selected = true
+	export let selected = true;
+	export let content = '';
+	export let tags: NDKTag[] = [];
+	export let horsenote = false;
+
+	function publish(c: string) {
+		if (c.length < 1) {alert("invalid note length")}
+		console.log(15, c)
+		if (!$currentUser) {
+			alert('could not find your event signer');
+			throw new Error('invalid user');
+		} else {
+			let e = new NDKEvent($ndk);
+			e.kind = 1;
+			e.created_at = Math.floor(new Date().getTime() / 1000);
+			e.content = c + (horsenote ? '\nPublished with humble.horse 🐎🐎🐎' : '');
+			e.tags = tags;
+			e.author = $currentUser;
+			console.log(e)
+			e.publish().then((r) => {
+				console.log(r);
+				console.log(e);
+			});
+		}
+	}
 </script>
-<div class="flex items-center h-16 focus-within:h-36 w-full px-3 py-2 bg-zinc-300 dark:bg-cyan-900 ">
+
+<div class="flex items-center h-16 focus-within:h-36 w-full px-3 py-2 bg-zinc-300 dark:bg-cyan-900">
 	<div class="">
 		<button
 			type="button"
@@ -60,27 +88,40 @@ export let selected = true
 			<span class="sr-only">Add emoji</span>
 		</button>
 	</div>
-	<textarea on:blur={()=>{}} on:click={()=>{selected=true}}
+	<Textarea
+		on:blur={() => {}}
+		on:click={() => {
+			selected = true;
+		}}
 		id="chat"
-		rows="1"
 		class="resize-none block mx-4 p-2.5 w-full h-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 		placeholder="Start typing..."
-	></textarea>
+		bind:value={content}
+	></Textarea>
 	<div class="flex flex-col">
-	<Button onClick={()=>{alert("ghost mode: implement me!")}}><GhostSolid /></Button>
-	<Button onClick={()=>{alert("could not find your signer, or something is broken")}}>
-		<svg
-			class="w-5 h-5 rotate-90 rtl:-rotate-90"
-			aria-hidden="true"
-			xmlns="http://www.w3.org/2000/svg"
-			fill="currentColor"
-			viewBox="0 0 18 20"
+		<Button
+			onClick={() => {
+				alert('ghost mode: implement me!');
+			}}><GhostSolid /></Button
 		>
-			<path
-				d="m17.914 18.594-8-18a1 1 0 0 0-1.828 0l-8 18a1 1 0 0 0 1.157 1.376L8 18.281V9a1 1 0 0 1 2 0v9.281l6.758 1.689a1 1 0 0 0 1.156-1.376Z"
-			/>
-		</svg>
-		<span class="sr-only">Send message</span>
-	</Button>
-</div>
+		<Button
+			onClick={() => {
+				//console.log(content)
+				publish(content);
+			}}
+		>
+			<svg
+				class="w-5 h-5 rotate-90 rtl:-rotate-90"
+				aria-hidden="true"
+				xmlns="http://www.w3.org/2000/svg"
+				fill="currentColor"
+				viewBox="0 0 18 20"
+			>
+				<path
+					d="m17.914 18.594-8-18a1 1 0 0 0-1.828 0l-8 18a1 1 0 0 0 1.157 1.376L8 18.281V9a1 1 0 0 1 2 0v9.281l6.758 1.689a1 1 0 0 0 1.156-1.376Z"
+				/>
+			</svg>
+			<span class="sr-only">Send message</span>
+		</Button>
+	</div>
 </div>

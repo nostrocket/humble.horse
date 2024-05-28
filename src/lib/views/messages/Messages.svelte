@@ -5,20 +5,22 @@
 	import MessageInput from '@/components/MessageInput.svelte';
 	import Input from '@/components/ui/input/input.svelte';
 	import { currentUser, ndk } from '@/ndk/ndk';
-	import { PushEvent, UpdatePubkey, FrontendDataStore as feds, viewed } from '@/snort_workers/main';
+	import { PushEvent, FrontendDataStore as feds, viewed } from '@/snort_workers/main';
 	import { updateRepliesInPlace } from '@/snort_workers/utils';
 	import { stableShortList, threadParentID, threadParentIDChain } from '@/stores/shortlist';
 	import { NDKEvent } from '@nostr-dev-kit/ndk';
+	import NDKSvelte from '@nostr-dev-kit/ndk-svelte';
 	import { RequestBuilder, type QueryLike } from '@snort/system';
 	import { BloomFilter } from 'bloomfilter';
 	import type { NostrEvent } from 'nostr-tools';
-	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
 	import { onMount } from 'svelte';
+	import { ArrowTurnUpSolid } from 'svelte-awesome-icons';
 	import { derived, writable } from 'svelte/store';
 	import RenderKind1 from './RenderKind1.svelte';
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
 	import { System } from './snort';
-	import NDKSvelte from '@nostr-dev-kit/ndk-svelte';
+
+	let messageInputContent = ""
 
 	let localEvents = writable(new Map<string, NostrEvent>());
 
@@ -220,7 +222,7 @@
 			<Coracle />
 		{/if}
 	</slot>
-	<div slot="input" class="w-full content-end"><MessageInput /></div>
+	<div slot="input" class="w-full content-end"><MessageInput horsenote bind:content={messageInputContent} /></div>
 	<div slot="right">
 		<div class=" ml-2">
 			<h3>HUMBLE HORSE</h3>
