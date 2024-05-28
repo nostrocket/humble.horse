@@ -5,6 +5,7 @@
 	import { Home, Moon, Sun } from 'radix-icons-svelte';
 	import {
 		CircleQuestionSolid,
+		CodePullRequestSolid,
 		FaucetSolid,
 		GearSolid,
 		GhostSolid,
@@ -39,6 +40,7 @@
 				<Button><ListCheckSolid /></Button>
 				<Button><CircleQuestionSolid /></Button>
 				<Button><GearSolid /></Button>
+				<Button onClick={()=>{console.log("43");window.location.href=`https://github.com/nostrocket/humble.horse/`}}><CodePullRequestSolid /></Button>
 
 				<Button onClick={toggleMode}>
 					<Moon
