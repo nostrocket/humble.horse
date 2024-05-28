@@ -39,9 +39,9 @@
 				{/if}
 
 				<Button
-					onClick={() => {
-						alert('todo: implement todo bookmarks');
-					}}><ListCheckSolid /></Button
+				onClick={() => {
+					goto(`${base}/todo`);
+				}}><ListCheckSolid /></Button
 				>
 				<Button
 					onClick={() => {

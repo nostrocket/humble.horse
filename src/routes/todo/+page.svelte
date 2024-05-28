@@ -19,12 +19,9 @@
 							class="px-3.5 py-2 bg-gray-200 dark:bg-gray-700 rounded-e-xl rounded-es-xl flex flex-col gap-2"
 						>
 							<p class="text-sm font-normal text-gray-900 dark:text-white py-2">
-								Humble Horse is a <a href="https//nostrocket.org">Nostrocket</a> project, which means it is owned by contributors and any revenue it generates will split between all people who worked on it in proportion to the work they have done.
+								I sometimes want to bookmark a note so I can reply to it later, or take some action based on it. But the UI I want is a bit different to the typical bookmark UI implemented in nostr clients so far, so I'm going to implement it here.
 							</p>
 
-                            <p class="text-sm font-normal text-gray-900 dark:text-white py-2">
-								Once implemented, this page will show you the flow of sats to contributors.
-							</p>
 						</div>
 					</div>
 				</div>
