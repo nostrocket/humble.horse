@@ -4,6 +4,7 @@
 	import { toggleMode } from 'mode-watcher';
 	import { Home, Moon, Sun } from 'radix-icons-svelte';
 	import {
+	ChartPieSolid,
 		CircleQuestionSolid,
 		CodePullRequestSolid,
 		FaucetSolid,
@@ -48,6 +49,9 @@
 					}}><CircleQuestionSolid /></Button
 				>
 				<Button><GearSolid /></Button>
+				<Button onClick={() => {
+					goto(`${base}/merits`);
+				}}><ChartPieSolid /></Button>
 				<Button
 					onClick={() => {
 						console.log('43');
