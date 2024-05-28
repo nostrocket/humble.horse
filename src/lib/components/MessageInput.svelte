@@ -68,10 +68,7 @@ export let selected = true
 	></textarea>
 	<div class="flex flex-col">
 	<Button onClick={()=>{alert("ghost mode: implement me!")}}><GhostSolid /></Button>
-	<button
-		type="submit"
-		class=" {selected?"block":"hidden"} inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100 dark:text-blue-500 dark:hover:bg-gray-600"
-	>
+	<Button onClick={()=>{alert("could not find your signer, or something is broken")}}>
 		<svg
 			class="w-5 h-5 rotate-90 rtl:-rotate-90"
 			aria-hidden="true"
@@ -84,6 +81,6 @@ export let selected = true
 			/>
 		</svg>
 		<span class="sr-only">Send message</span>
-	</button>
+	</Button>
 </div>
 </div>

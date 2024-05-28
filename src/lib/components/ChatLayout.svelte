@@ -37,7 +37,7 @@
 					</Button>
 				{/if}
 
-				<Button><ListCheckSolid /></Button>
+				<Button onClick={()=>{alert("todo: implement todo bookmarks")}}><ListCheckSolid /></Button>
 				<Button><CircleQuestionSolid /></Button>
 				<Button><GearSolid /></Button>
 				<Button onClick={()=>{console.log("43");window.location.href=`https://github.com/nostrocket/humble.horse/`}}><CodePullRequestSolid /></Button>
@@ -52,11 +52,9 @@
 					<span class="sr-only">Toggle theme</span>
 				</Button>
 
-				<LoginButton />
-
 				<!-- <Button onClick={()=>{goto(`${base}/debug`)}}><ToolboxSolid /></Button
 					> -->
-				<Button><PodcastSolid /></Button>
+				<Button onClick={()=>{alert("implement podcast tiks")}}><PodcastSolid /></Button>
 				<Button
 					notifs={0}
 					onClick={() => {
