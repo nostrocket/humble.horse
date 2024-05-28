@@ -18,12 +18,6 @@
 						<div
 							class="px-3.5 py-2 bg-gray-200 dark:bg-gray-700 rounded-e-xl rounded-es-xl flex flex-col gap-2"
 						>
-							<p class="text-sm font-normal text-gray-900 dark:text-white py-2">
-								Of all people, they alone who give their time to philosophy are at leisure, they
-								alone really live. For it's not just their own lifetime that they watch over
-								carefully, but they annex every age to their own; all the years that have gone
-								before are added to their own.
-							</p>
 
                             <p class="text-sm font-normal text-gray-900 dark:text-white py-2">
 								When you click the Marcus button on any note, it will be saved here to your list of personal meditations so that I can remind you to add them to your life.
