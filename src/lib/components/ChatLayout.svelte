@@ -72,9 +72,9 @@
 				<!-- <Button onClick={()=>{goto(`${base}/debug`)}}><ToolboxSolid /></Button
 					> -->
 				<Button
-					onClick={() => {
-						alert('implement podcast tiks');
-					}}><PodcastSolid /></Button
+				onClick={() => {
+					goto(`${base}/tiks`);
+				}}><PodcastSolid /></Button
 				>
 				<Button
 					notifs={0}
