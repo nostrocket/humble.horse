@@ -30,7 +30,6 @@
 		"markdown-it": "^14.0.0",
 		"markdown-it-mathjax3": "^4.3.2",
 		"markdown-it-wikicustom": "^0.0.6",
-		"markdown-it-wikilinks": "^1.4.0",
 		"mode-watcher": "^0.2.1",
 		"nostr-tools": "^2.2.1",
 		"quill": "2.0.0-rc.5",
