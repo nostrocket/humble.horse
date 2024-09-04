@@ -12,7 +12,9 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "eslint .",
 		"test:integration": "playwright test",
-		"test:unit": "vitest"
+		"test:unit": "vitest",
+		"format": "prettier --write .",
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@nostr-dev-kit/ndk": "^2.7.1",
@@ -58,9 +60,12 @@
 		"autoprefixer": "^10.4.15",
 		"daisyui": "^4.7.2",
 		"eslint": "^8.56.0",
+		"husky": "^9.1.5",
+		"lint-staged": "^15.2.10",
 		"postcss": "^8.4.29",
 		"prettier": "^3.1.1",
 		"prettier-plugin-svelte": "^3.1.2",
+		"prettier-plugin-tailwindcss": "^0.6.6",
 		"svelte": "^4.2.8",
 		"svelte-awesome-icons": "^1.2.0",
 		"svelte-check": "^3.6.2",
@@ -70,5 +75,6 @@
 		"typescript": "^5.3.3",
 		"vite": "^5.0.10",
 		"vitest": "^1.1.2"
-	}
+	},
+	"packageManager": "pnpm@8.10.2+sha512.0782093d5ba6c7ad9462081bc1ef0775016a4b4109eca1e1fedcea6f110143af5f50993db36c427d4fa8c62be3920a3224db12da719d246ca19dd9f18048c33c"
 }
