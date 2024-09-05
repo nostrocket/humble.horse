@@ -29,6 +29,7 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+      - run: npm install
       - run: npm ci --legacy-peer-deps
       - run: npm run build
       - name: Upload artifact
