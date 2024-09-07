@@ -8,9 +8,9 @@
 	import { PushEvent, FrontendDataStore as feds, viewed } from '@/snort_workers/main';
 	import { updateRepliesInPlace } from '@/snort_workers/utils';
 	import { stableShortList, threadParentID, threadParentIDChain } from '@/stores/shortlist';
-	import { NDKEvent } from '@nostr-dev-kit/ndk';
+	import { NDKEvent, type NDKTag } from '@nostr-dev-kit/ndk';
 	import NDKSvelte from '@nostr-dev-kit/ndk-svelte';
-	import { RequestBuilder, type QueryLike } from '@snort/system';
+	import { RequestBuilder, type QueryLike, type Tag } from '@snort/system';
 	import { BloomFilter } from 'bloomfilter';
 	import type { NostrEvent } from 'nostr-tools';
 	import { onMount } from 'svelte';
@@ -20,7 +20,7 @@
 	import RenderKind1AsThreadHead from './RenderKind1AsThreadHead.svelte';
 	import { System } from './snort';
 
-	let messageInputContent = ""
+	let messageInputContent = '';
 
 	let localEvents = writable(new Map<string, NostrEvent>());
 
@@ -186,6 +186,28 @@
 			window.visualViewport?.removeEventListener('resize', handleResize);
 		};
 	});
+
+	$: tags = () => {
+		const tags: NDKTag[] = [];
+		if ($threadParentID !== 'root') {
+			const path = $threadParentIDChain;
+			if (path.length >= 2) {
+				tags.push(['p', $FrontendDataStore.events.get($threadParentID)?.pubkey!]);
+				tags.push(['e', path[1], '', 'root']);
+				if (path.length === 2) {
+					tags.push(['e', path[1], '', 'reply']);
+				} else {
+					tags.push(['e', path[path.length - 1], '', 'reply']);
+					if (path.length > 3) {
+						for (let i = 2; i < path.length - 1; i++) {
+							tags.push(['e', path[i], '', 'mention']);
+						}
+					}
+				}
+			}
+		}
+		return tags;
+	};
 </script>
 
 <div class=" hidden">{$shortListLength}</div>
@@ -200,7 +222,8 @@
 			{#if $threadParentID != 'root'}
 				<RenderKind1AsThreadHead note={$FrontendDataStore.events.get($threadParentID)} />
 			{/if}
-			{#each $stableShortList as event, i (event.id)}<RenderKind1
+			{#each $stableShortList as event, i (event.id)}
+				<RenderKind1
 					isTop={event.id == $stableShortList[0].id && $threadParentID == 'root'}
 					store={FrontendDataStore}
 					note={event}
@@ -222,7 +245,9 @@
 			<Coracle />
 		{/if}
 	</slot>
-	<div slot="input" class="w-full content-end"><MessageInput horsenote bind:content={messageInputContent} /></div>
+	<div slot="input" class="w-full content-end">
+		<MessageInput horsenote bind:content={messageInputContent} tags={tags()} />
+	</div>
 	<div slot="right">
 		<div class=" ml-2">
 			<h3>HUMBLE HORSE</h3>
@@ -298,7 +323,7 @@
 			>
 			<br />
 			<h3>Your Keyword Ranks</h3>
-			<div class="overflow-y-scroll max-h-48">
+			<div class="max-h-48 overflow-y-scroll">
 				{#each [...$FrontendDataStore.keywords].sort(([sa, a], [sb, b]) => {
 					return b - a;
 				}) as [word, count]}{word}: {count} <br />{/each}
