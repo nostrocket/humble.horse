@@ -6,6 +6,7 @@
 	import { init } from '@/views/messages/snort';
 	import { connect, currentUser } from '@/ndk/ndk';
 	import { stableShortList } from '@/stores/shortlist';
+	import { Toaster } from 'svelte-sonner';
 
 	currentUser.subscribe((c) => {
 		if (c && c.pubkey) {
@@ -23,4 +24,5 @@
 </script>
 
 <ModeWatcher />
+<Toaster />
 <slot />
