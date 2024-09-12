@@ -16,7 +16,6 @@
 		AngleRightSolid
 	} from 'svelte-awesome-icons';
 	import Button from './Button.svelte';
-	import LoginButton from './LoginButton.svelte';
 	import Login from '@/ndk/Login.svelte';
 
 	export let hideFaucet = false;
@@ -125,11 +124,9 @@
 
 				<div class="flex w-full items-center">
 					<Button onClick={toggleMode}>
-						<Moon
-							class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-						/>
+						<Moon class="h-6 w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
 						<Sun
-							class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+							class="absolute h-6 w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
 						/>
 						<span class="sr-only">Toggle theme</span>
 					</Button>
