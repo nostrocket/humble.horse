@@ -1,8 +1,9 @@
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
+	import { page } from '$app/stores';
 	import { toggleMode } from 'mode-watcher';
-	import { Home, Moon, Sun } from 'radix-icons-svelte';
+	import { Moon, Sun } from 'radix-icons-svelte';
 	import {
 		ChartPieSolid,
 		CircleQuestionSolid,
@@ -34,6 +35,22 @@
 		marcus: 'Marcus',
 		ghost: 'Ghost Mode'
 	};
+
+	$: getContainerClass = (menuItem: string) => {
+		if ($page.url.pathname.startsWith(`/${menuItem}`)) {
+			return 'flex w-full items-center bg-orange-300 transition-all';
+		} else {
+			return 'flex w-full items-center transition-all';
+		}
+	};
+
+	$: getIconClass = (menuItem: string) => {
+		if ($page.url.pathname.startsWith(`/${menuItem}`)) {
+			return 'text-cyan-700 transition-all';
+		} else {
+			return 'transition-all';
+		}
+	};
 </script>
 
 <div class="flex h-full flex-row">
@@ -61,68 +78,68 @@
 					</div>
 				{/if}
 
-				<div class="flex w-full items-center">
+				<div class={getContainerClass('todo')}>
 					<Button
 						onClick={() => {
 							goto(`${base}/todo`);
 						}}
 					>
-						<ListCheckSolid />
+						<ListCheckSolid class={getIconClass('todo')} />
 					</Button>
 					{#if isExpanded}
 						<span class="ml-2 text-sm text-white">{descriptions.todo}</span>
 					{/if}
 				</div>
 
-				<div class="flex w-full items-center">
+				<div class={getContainerClass('help')}>
 					<Button
 						onClick={() => {
 							goto(`${base}/help`);
 						}}
 					>
-						<CircleQuestionSolid />
+						<CircleQuestionSolid class={getIconClass('help')} />
 					</Button>
 					{#if isExpanded}
 						<span class="ml-2 text-sm text-white">{descriptions.help}</span>
 					{/if}
 				</div>
 
-				<div class="flex w-full items-center">
+				<div class={getContainerClass('gear')}>
 					<Button onClick={() => {}}>
-						<GearSolid />
+						<GearSolid class={getIconClass('gear')} />
 					</Button>
 					{#if isExpanded}
 						<span class="ml-2 text-sm text-white">{descriptions.gear}</span>
 					{/if}
 				</div>
 
-				<div class="flex w-full items-center">
+				<div class={getContainerClass('merits')}>
 					<Button
 						onClick={() => {
 							goto(`${base}/merits`);
 						}}
 					>
-						<ChartPieSolid />
+						<ChartPieSolid class={getIconClass('merits')} />
 					</Button>
 					{#if isExpanded}
 						<span class="ml-2 text-sm text-white">{descriptions.merits}</span>
 					{/if}
 				</div>
 
-				<div class="flex w-full items-center">
+				<div class={getContainerClass('github')}>
 					<Button
 						onClick={() => {
 							window.location.href = `https://github.com/nostrocket/humble.horse/`;
 						}}
 					>
-						<CodePullRequestSolid />
+						<CodePullRequestSolid class={getIconClass('github')} />
 					</Button>
 					{#if isExpanded}
 						<span class="ml-2 text-sm text-white">{descriptions.github}</span>
 					{/if}
 				</div>
 
-				<div class="flex w-full items-center">
+				<div class={getContainerClass('theme')}>
 					<Button onClick={toggleMode}>
 						<Moon class="h-6 w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
 						<Sun
@@ -135,27 +152,31 @@
 					{/if}
 				</div>
 
-				<div class="flex w-full items-center">
+				<div class={getContainerClass('tiks')}>
 					<Button
 						onClick={() => {
 							goto(`${base}/tiks`);
 						}}
 					>
-						<PodcastSolid />
+						<PodcastSolid class={getIconClass('tiks')} />
 					</Button>
 					{#if isExpanded}
 						<span class="ml-2 text-sm text-white">{descriptions.tiks}</span>
 					{/if}
 				</div>
 
-				<div class="flex w-full items-center">
+				<div class={getContainerClass('marcus')}>
 					<Button
 						notifs={0}
 						onClick={() => {
 							goto(`${base}/marcus`);
 						}}
 					>
-						<img class="w-9 min-w-9" src={`${base}/marcus.png`} alt="Marcus" />
+						<img
+							src={`${base}/marcus.png`}
+							alt="Marcus"
+							class={`w-9 min-w-9 ${getIconClass('marcus')}`}
+						/>
 					</Button>
 					{#if isExpanded}
 						<span class="ml-2 text-sm text-white">{descriptions.marcus}</span>
