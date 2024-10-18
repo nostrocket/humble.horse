@@ -11,16 +11,16 @@ export function useFetchImplementation(fetchImplementation) {
 export async function getZapEndpoint(metadata) {
   try {
     let lnurl = '';
-    let { lud06, lud16 } = JSON.parse(metadata.content || '{}'); // Add fallback for missing content
+    const { lud06, lud16 } = JSON.parse(metadata.content || '{}'); // Add fallback for missing content
     console.log("Parsed metadata:", { lud06, lud16 });
 
     if (lud06) {
-      let { words } = bech32.decode(lud06, 1000);
-      let data = bech32.fromWords(words);
+      const { words } = bech32.decode(lud06, 1000);
+      const data = bech32.fromWords(words);
       lnurl = utf8Decoder.decode(data);
     } else if (lud16) {
       // Extract domain and name from the LUD16 address
-      let [name, domain] = lud16.split('@');
+      const [name, domain] = lud16.split('@');
       // Build the LNURL service URL dynamically based on the domain
       lnurl = new URL(`/.well-known/lnurlp/${name}`, `https://${domain}`).toString();
     } else {
@@ -29,15 +29,14 @@ export async function getZapEndpoint(metadata) {
 
     console.log("LNURL:", lnurl);
 
-    let res = await _fetch(lnurl);
+    const res = await _fetch(lnurl);
 
     if (!res.ok) { // Handle non-200 response codes
       console.error(`Error fetching LNURL: ${res.statusText}`);
       return null;
     }
 
-    let body = await res.json();
-    console.log("LNURL Response Body:", body);
+    const body = await res.json();
 
     if (body.allowsNostr && body.nostrPubkey) {
       return body.callback;
@@ -53,9 +52,10 @@ export async function getZapEndpoint(metadata) {
 
 export function makeZapRequest({ profile, event, amount, relays = [], comment = '' }) {
   if (!amount) throw new Error('Amount not given');
+  if (amount <= 0) throw new Error('Amount must be a positive number');
   if (!profile) throw new Error('Profile not given');
 
-  let zapRequest = {
+  const zapRequest = {
     created_at: Math.round(Date.now() / 1000),
     content: comment,
     tags: [
@@ -72,7 +72,6 @@ export function makeZapRequest({ profile, event, amount, relays = [], comment = 
     zapRequest.tags.push(['relays', ...relays]); // Add relay list if available
   }
 
-  console.log("Zap Request:", zapRequest);
 
   return zapRequest;
 }

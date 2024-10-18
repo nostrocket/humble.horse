@@ -62,11 +62,10 @@
           lud16 = json.lud16;
         }
       } catch {
-        console.log('Error parsing content');
+        console.log('Error parsing content', error);
       }
     }
     profileLud16.set(lud16);
-    console.log('LUD-16:', lud16);
   }
 
 
@@ -93,13 +92,7 @@
         return;
       }
 
-      const zapRequest = makeZapRequest({
-        profile: lud16,
-        event: null,
-        amount: amountToSend,
-        comment: comment,
-        relays: ['wss://relay.damus.io']
-      });
+
 
       const response = await fetch(`${callback}?amount=${amountToSend}`);
       const { pr: invoice } = await response.json();
@@ -240,7 +233,7 @@
     }
 
     .modal button:active {
-      transform: translateY(0); 
+      transform: translateY(0);
     }
 
     @keyframes showModal {
