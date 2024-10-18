@@ -12,9 +12,9 @@
 
   let q: QueryLike;
   const profileLud16 = writable('');
-  const customZapAmountSats = writable(0); // Store for zap amount in sats
-  const customZapComment = writable(''); // Store for zap comment
-  const showModal = writable(false); // Store for modal visibility
+  const customZapAmountSats = writable(0);
+  const customZapComment = writable('');
+  const showModal = writable(false);
 
 
   onMount(() => {
@@ -61,7 +61,7 @@
         if (json.lud16 && json.lud16.length > 6) {
           lud16 = json.lud16;
         }
-      } catch {
+      } catch (error) {
         console.log('Error parsing content', error);
       }
     }
@@ -73,51 +73,62 @@
 
 
   async function handleZap() {
-    const lud16 = $profileLud16; // Use the fetched LUD16 from profileLud16 store
-    const comment = $customZapComment;
+  const lud16 = $profileLud16;
+  const comment = $customZapComment;
 
+  const metadata = {
+    content: JSON.stringify({ lud16, comment })
+  };
 
-    const metadata = {
-      content: JSON.stringify({ lud16, comment })
-    };
-
-    const callback = await getZapEndpoint(metadata); // You should define this function
+  try {
+    const callback = await getZapEndpoint(metadata);
 
     if (callback) {
-      const amountToSend = $customZapAmountSats * 1000; // Convert sats to millisats (1 sat = 1000 millisats)
+      const amountToSend = $customZapAmountSats * 1000;
 
       if (!amountToSend) {
-        console.error('Please enter a zap amount.');
-        alert('Please enter a zap amount.');
+        console.error('No zap amount entered.');
+        alert('Please enter a valid zap amount.');
         return;
       }
 
-
-
+      // Fetch the invoice using the callback URL
       const response = await fetch(`${callback}?amount=${amountToSend}`);
-      const { pr: invoice } = await response.json();
+      if (!response.ok) {
+        console.error('Failed to fetch invoice:', response.statusText);
+        alert('Error fetching invoice. Please try again later.');
+        return;
+      }
 
-      console.log('Invoice:', invoice);
+      const { pr: invoice } = await response.json();
+      console.log('Invoice received:', invoice);
 
       try {
         if (window.webln) {
           await window.webln.enable();
           await window.webln.sendPayment(invoice);
           console.log('Payment sent successfully via WebLN!');
+          alert('Payment sent successfully!');
         } else {
           console.error('WebLN not available.');
-          alert('WebLN not available.');
+          alert('WebLN is not available. Please use a WebLN-compatible browser.');
         }
       } catch (err) {
-        console.error('WebLN error:', err);
-        alert('Failed to send payment via WebLN.');
+        console.error('WebLN payment error:', err);
+        alert(`Failed to send payment via WebLN. Error: ${err.message}`);
       }
     } else {
-      console.error('Failed to get zap endpoint.');
+      console.error('Failed to retrieve zap endpoint.');
+      alert('Unable to retrieve zap endpoint. Please try again later.');
     }
-
-    closeModal();
+  } catch (err) {
+    console.error('Error in zap process:', err);
+    alert(`An error occurred while processing the zap. Error: ${err.message}`);
   }
+
+  closeModal();
+}
+
 </script>
 
 
@@ -147,7 +158,7 @@
 
 
         <button on:click={handleZap}>Send Zap</button>
-        <button on:click={closeModal}>Cancel</button>
+        <button class="cancel" on:click={closeModal}>Cancel</button>
       </div>
     </div>
   {/if}
@@ -234,6 +245,11 @@
 
     .modal button:active {
       transform: translateY(0);
+    }
+
+    .modal button.cancel {
+    background-color: #ccc;
+    color: #333;
     }
 
     @keyframes showModal {
