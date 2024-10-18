@@ -2,6 +2,7 @@
 	import RenderNoteContent from '@/components/RenderNoteContent.svelte';
 	import UserDisplayName from '@/components/UserDisplayName.svelte';
 	import UserProfilePic from '@/components/UserProfilePic.svelte';
+	import UserLud16 from '@/components/UserLud16.svelte';
 	import { viewed } from '@/snort_workers/main';
 	import type { FrontendData } from '@/snort_workers/types';
 	import { formatTimeAgo } from '@/utils';
@@ -22,6 +23,9 @@
 
 	let top: HTMLDivElement;
 	let messageViewController: HTMLDivElement;
+
+	// Declare showLud16 to toggle visibility of UserLud16
+	let showLud16 = false;
 
 	function updateDistance() {
 		const rect = messageViewController.getBoundingClientRect();
@@ -60,11 +64,6 @@
 	<div class="grid">
 		<div class="flex gap-2">
 			<UserProfilePic pubkey={note.pubkey} />
-			<!-- <img
-				class="w-8 h-8 rounded-full"
-				src="https://zenquotes.io/img/marcus-aurelius.jpg"
-				alt="profile pic"
-			/> -->
 			<div class="grid">
 				<h5 class="text-gray-900 dark:text-orange-600 font-semibold leading-snug pb-1">
 					<UserDisplayName pubkey={note.pubkey} />
@@ -89,10 +88,14 @@
 							<div>
 								<Zap
 									onclick={() => {
-										alert('implement me!');
+										showLud16 = !showLud16;  // Toggle visibility of UserLud16 on click
 									}}
 									{note}
 								/>
+								<!-- Conditionally display the UserLud16 component based on showLud16 state -->
+								{#if showLud16}
+									<UserLud16 pubkey={note.pubkey} />
+								{/if}
 								<Reply onclick={onClickReply} {childrenCount} />
 							</div>
 						</div>
@@ -111,6 +114,7 @@
 		</div>
 	</div>
 </div>
+
 <!-- SCROLL OUT OF VIEW todo: change the location of this (in the DOM) so that we can use an animation to make it clear that the note has been "viewed" and can't be seen again -->
 <div
 	bind:this={messageViewController}
