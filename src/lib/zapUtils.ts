@@ -8,7 +8,7 @@ export function useFetchImplementation(fetchImplementation) {
   _fetch = fetchImplementation;
 }
 
-export async function getZapEndpoint(metadata) {
+export async function getZapEndpoint(metadata: { content?: string}): Promise<string | null> {
   try {
     let lnurl = '';
     const { lud06, lud16 } = JSON.parse(metadata.content || '{}'); // Add fallback for missing content
@@ -18,6 +18,9 @@ export async function getZapEndpoint(metadata) {
       const data = bech32.fromWords(words);
       lnurl = utf8Decoder.decode(data);
     } else if (lud16) {
+      if (!lud16.includes('@')) {
+        throw new Error('Invalid LUD16 format');
+    }
       // Extract domain and name from the LUD16 address
       const [name, domain] = lud16.split('@');
       // Build the LNURL service URL dynamically based on the domain
@@ -47,8 +50,23 @@ export async function getZapEndpoint(metadata) {
 }
 
 
-
-export function makeZapRequest({ profile, event, amount, relays = [], comment = '' }) {
+export function makeZapRequest({
+  profile,
+  event,
+  amount,
+  relays = [],
+  comment = ''
+}: {
+  profile: string;
+  event?: string;
+  amount: number;
+  relays?: string[];
+  comment?: string;
+}): {
+  created_at: number;
+  content: string;
+  tags: string[][]
+} {
   if (!amount) throw new Error('Amount not given');
   if (amount <= 0) throw new Error('Amount must be a positive number');
   if (!profile) throw new Error('Profile not given');
@@ -59,7 +77,7 @@ export function makeZapRequest({ profile, event, amount, relays = [], comment = 
     tags: [
       ['amount', amount.toString()],
       ['p', profile], // Include profile pubkey
-    ]
+    ] as string[][] // Explicitly typing the array as string[][]
   };
 
   if (event) {
@@ -67,9 +85,8 @@ export function makeZapRequest({ profile, event, amount, relays = [], comment = 
   }
 
   if (relays.length > 0) {
-    zapRequest.tags.push(['relays', ...relays]); // Add relay list if available
+    zapRequest.tags.push(['relays', ...relays]);
   }
-
 
   return zapRequest;
 }
