@@ -85,8 +85,9 @@ export function makeZapRequest({
   }
 
   if (relays.length > 0) {
-    zapRequest.tags.push(['relays', ...relays]);
-  }
+    for (const relay of relays) {
+      zapRequest.tags.push(['relays', relay]);
+  }  }
 
   return zapRequest;
 }
