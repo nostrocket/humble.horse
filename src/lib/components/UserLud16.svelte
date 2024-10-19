@@ -127,7 +127,6 @@
         const response = await fetch(`${callback}?amount=${amountToSend}`);
         if (!response.ok) {
           console.error('Failed to fetch invoice:', response.statusText);
-          alert('Error fetching invoice. Please try again later.');
           return;
         }
 
@@ -140,22 +139,18 @@
             await window.webln.enable();
             await window.webln.sendPayment(invoice);
             console.log('Payment sent successfully via WebLN!');
-            alert('Payment sent successfully!');
           } else {
             console.error('WebLN not available.');
-            await generateQRCode(invoice); // Ge
+            await generateQRCode(invoice);
           }
         } catch (err) {
           console.error('WebLN payment error:', err);
-          alert(`Failed to send payment via WebLN. Error: ${err.message}`);
         }
       } else {
         console.error('Failed to retrieve zap endpoint.');
-        alert('Unable to retrieve zap endpoint. Please try again later.');
       }
     } catch (err) {
       console.error('Error in zap process:', err);
-      alert(`An error occurred while processing the zap. Error: ${err.message}`);
     }
 
     closeModal();
