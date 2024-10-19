@@ -113,24 +113,35 @@
     };
 
     try {
+      // Fetch the zap endpoint
       const callback = await getZapEndpoint(metadata);
 
       if (callback) {
         const amountToSend = $customZapAmountSats * 1000;
 
-        if (!amountToSend) {
-          console.error('No zap amount entered.');
-          alert('Please enter a valid zap amount.');
+        // Validate the zap amount
+        if (!amountToSend || amountToSend <= 0) {
+          alert('Please enter a valid zap amount greater than zero.');
           return;
         }
 
+        // Fetch the invoice
         const response = await fetch(`${callback}?amount=${amountToSend}`);
         if (!response.ok) {
-          console.error('Failed to fetch invoice:', response.statusText);
+          const errorMessage = `Failed to fetch invoice: ${response.status} ${response.statusText}`;
+          console.error(errorMessage);
+          alert(errorMessage);
           return;
         }
 
         const { pr: invoice } = await response.json();
+        if (!invoice) {
+          const errorMessage = 'Invoice not found in response.';
+          console.error(errorMessage);
+          alert(errorMessage);
+          return;
+        }
+
         console.log('Invoice received:', invoice);
         invoiceToCopy = invoice;
 
@@ -138,6 +149,7 @@
           if (window.webln) {
             await window.webln.enable();
             await window.webln.sendPayment(invoice);
+            alert('Payment sent successfully via WebLN!');
             console.log('Payment sent successfully via WebLN!');
           } else {
             console.error('WebLN not available.');
@@ -145,16 +157,21 @@
           }
         } catch (err) {
           console.error('WebLN payment error:', err);
+          alert('An error occurred while sending the payment. Please try again.');
         }
       } else {
-        console.error('Failed to retrieve zap endpoint.');
+        const errorMessage = 'Failed to retrieve zap endpoint.';
+        console.error(errorMessage);
+        alert(errorMessage);
       }
     } catch (err) {
       console.error('Error in zap process:', err);
+      alert('An unexpected error occurred. Please try again later.');
     }
 
     closeModal();
   }
+
 </script>
 
 {#if $showModal}
