@@ -96,13 +96,29 @@
 
 
   const generateQRCode = async (invoice) => {
-    try {
-      qrCodeDataUrl = await QRCode.toDataURL(invoice);
-      qrModal.set(true); // Show the QR modal when QR code is generated
-    } catch (err) {
-      console.error('Error generating QR code:', err);
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (attempts < maxAttempts) {
+      try {
+        qrCodeDataUrl = await QRCode.toDataURL(invoice);
+        qrModal.set(true); // Show the QR modal when QR code is generated
+        return; // Exit the function if successful
+      } catch (err) {
+        attempts++;
+        console.error('Error generating QR code:', err);
+
+        // If max attempts reached, show a fallback message
+        if (attempts === maxAttempts) {
+          qrCodeDataUrl = null;
+          alert('Failed to generate QR code after multiple attempts. Please try again later or copy the invoice directly.');
+        } else {
+          alert(`Attempt ${attempts} failed. Retrying...`);
+        }
+      }
     }
   };
+
 
   async function handleZap() {
     const lud16 = $profileLud16;
