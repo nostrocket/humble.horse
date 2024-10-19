@@ -75,6 +75,7 @@
       navigator.clipboard.writeText(invoiceToCopy).then(() => {
         alert('Invoice copied to clipboard!');
       }).catch(err => {
+        alert('Failed to copy invoice to clipboard. Please try again.');
         console.error('Failed to copy:', err);
       });
     } else {
